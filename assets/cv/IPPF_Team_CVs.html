@@ -9,37 +9,89 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        html {
+            scroll-behavior: smooth;
+            overflow-x: auto;
+            -webkit-text-size-adjust: 100%;
+        }
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f3f4f6;
             color: #1f2937;
+            min-width: 0;
+            overflow-x: auto;
+            overflow-y: auto;
+        }
+
+        .top-nav-fixed {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            width: 100vw !important;
+            z-index: 50 !important;
+        }
+        body {
+            padding-top: 106px;
+        }
+        @media (min-width: 768px) {
+            body {
+                padding-top: 66px;
+            }
         }
         .cv-wrapper {
             width: 100%;
             display: flex;
             justify-content: center;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: none; /* Firefox */
-        }
-        .cv-wrapper::-webkit-scrollbar {
-            display: none; /* Chrome, Safari */
+            overflow: visible;
         }
         .resume-container {
             width: 210mm;
             max-width: 210mm;
-            min-width: 210mm; /* Forces the layout to remain exactly like desktop */
+            min-width: 210mm; /* Keeps the resume exactly like the desktop/A4 layout */
             flex-shrink: 0;
             margin: 2rem auto;
             background: white;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             padding: 50px 60px;
+            transform: none !important;
+            zoom: 1 !important;
+            transform-origin: top left;
         }
-        @media (max-width: 850px) {
+        @media (max-width: 820px) {
+            body {
+                min-width: 210mm; /* Enables proper horizontal panning instead of squeezing/cropping */
+            }
+            .top-nav-fixed {
+                width: 210mm !important;
+                min-width: 210mm !important;
+                max-width: none !important;
+            }
+            .top-nav-fixed > div {
+                max-width: 210mm !important;
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+            }
+            .cv-wrapper {
+                width: 210mm;
+                justify-content: flex-start;
+                padding-left: 0;
+                padding-right: 0;
+            }
             .resume-container {
-                /* Dynamically scales down the fixed desktop aspect ratio to fit mobile screens */
-                zoom: calc(100vw / 850);
-                margin: 20px auto;
+                margin: 20px 0;
+            }
+            .no-print:not(#backToTopBtn) {
+                min-width: 100vw;
+            }
+            #backToTopBtn {
+                width: 3.5rem !important;
+                height: 3.5rem !important;
+                min-width: 3.5rem !important;
+                max-width: 3.5rem !important;
+                border-radius: 9999px !important;
+                left: auto !important;
+                right: 1.5rem !important;
             }
         }
         .section-title {
@@ -76,20 +128,19 @@
             transform-origin: 50% 50%;
         }
         @media print {
-            body { background-color: white; margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .cv-wrapper { display: block; overflow: visible; width: 100%; }
+            body { background-color: white; margin: 0; padding: 0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .cv-wrapper { display: block; width: 100%; }
             .resume-container { box-shadow: none; margin: 0; padding: 10px 20px; width: 100% !important; min-width: 0 !important; max-width: 100% !important; zoom: 1 !important; }
             .no-print { display: none !important; }
             .section-title { color: #1e3a8a !important; border-bottom-color: #1e3a8a !important; }
             h3, h4 { page-break-after: avoid; }
         }
-        html { scroll-behavior: smooth; }
     </style>
 </head>
 <body class="antialiased">
 
     <!-- Sticky Top Navigation Bar -->
-    <div class="w-full bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm no-print">
+    <div class="top-nav-fixed bg-white border-b border-gray-200 shadow-sm no-print">
         <div class="max-w-6xl mx-auto px-4 lg:px-8 py-3 flex flex-col md:flex-row items-center justify-between gap-4">
     <!-- Go Back Link -->
         <a href="javascript:history.back()" class="flex items-center gap-2 text-gray-600 hover:text-blue-700 transition-colors font-bold text-sm bg-gray-50 hover:bg-blue-50 px-3 py-2 rounded-lg border border-gray-200 hover:border-blue-200">
@@ -522,18 +573,18 @@
 
             function setActiveNav() {
                 let currentActive = '';
-                const scrollY = window.scrollY;
-
+                
+                // Use getBoundingClientRect for bulletproof measurements regardless of CSS zoom levels
                 sections.forEach((section) => {
-                    // Offset check determines active section based on proximity to top of screen
-                    const sectionTop = section.offsetTop - 140; 
-                    if (scrollY >= sectionTop) {
+                    const rect = section.getBoundingClientRect();
+                    // Detect if the section's top is near the viewport top or covering the viewport
+                    if (rect.top <= 150 && rect.bottom >= 150) {
                         currentActive = 'nav-' + section.getAttribute('id').split('-')[1];
                     }
                 });
 
                 // Default fallback to first section if at the very top of the page
-                if (scrollY < 100 && sections.length > 0) {
+                if (window.scrollY < 100 && sections.length > 0) {
                     currentActive = 'nav-' + sections[0].getAttribute('id').split('-')[1];
                 }
 
