@@ -1,169 +1,224 @@
 <!DOCTYPE html>
-<html lang="en" class="light">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" type="image/x-icon" href="../assets/favicon.ico">
-  <title>IPPF Affiliate Performance - Power BI</title>
+  <title>IPPF Affiliate Performance Hub — Proposed Concept</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Configure Tailwind for Class-based Dark Mode -->
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            ippfred: '#E11B22',
-            ippfplum: '#1F1625',
-          }
-        }
-      }
-    }
-  </script>
-  <!-- Google Fonts: Plus Jakarta Sans -->
+  <!-- Google Fonts: Plus Jakarta Sans for a clean, modern data design -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
   
   <style>
+    :root {
+      /* IPPF Brand Palette */
+      --ippf-red: #E11B22;        /* Official IPPF Bright Red */
+      --ippf-plum: #1F1625;       /* Warm Charcoal Deep Plum for text and dark branding */
+      --ippf-cream: #FDFBF7;      /* High-end warm gallery background */
+      --ippf-card-bg: #FFFFFF;
+      --ippf-amber: #D98A2B;      /* Warm Warning Indicator */
+      --ippf-teal: #0F6E63;       /* Premium Success/Teal accent */
+      --ippf-border: #E6DFD5;     /* Soft paper border lines */
+    }
+    
     body {
       font-family: 'Plus Jakarta Sans', -apple-system, system-ui, sans-serif;
+      background-color: var(--ippf-cream);
+      color: var(--ippf-plum);
       -webkit-font-smoothing: antialiased;
-      transition: background-color 0.3s ease, color 0.3s ease;
+      transition: all 0.3s ease;
     }
 
-    /* SVG Donut Track adjustments for Dark Mode */
-    .donut-track { stroke: #F1ECE3; transition: stroke 0.3s ease; }
-    .dark .donut-track { stroke: #334155; }
+    /* Landscape viewport optimizer */
+    @media (min-width: 1024px) {
+      .landscape-height-lock {
+        max-height: 900px;
+      }
+    }
 
-    /* Smooth transitions */
-    .interactive-element { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
-    .interactive-element:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); }
-    .dark .interactive-element:hover { box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4); }
-    
-    .chart-bar-transition { transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
-    .chart-progress-transition { transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+    /* Soft premium brand border gradient */
+    .brand-top-border {
+      border-top: 4px solid var(--ippf-red);
+    }
 
-    /* Print/PDF Export Optimization */
+    .interactive-element {
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .interactive-element:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 16px -6px rgba(31, 22, 37, 0.08);
+    }
+
+    /* Power BI Embedded container simulator frame */
+    .pbi-frame {
+      border: 1px solid #D2D2D2;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.06);
+    }
+
+    /* Rotation animations for interactives */
+    .hover-spin:hover svg {
+      transform: rotate(45deg);
+    }
+    svg {
+      transition: transform 0.3s ease;
+    }
+
+    /* Soft transition for graphs */
+    .chart-bar-transition {
+      transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .chart-progress-transition {
+      transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Print-only context text */
+    .print-only {
+      display: none;
+    }
+
+    .no-print {
+      display: block;
+    }
+
     @media print {
-      body, html { background-color: #ffffff !important; height: auto !important; overflow: visible !important; }
-      .dark { background-color: #ffffff !important; color: #000 !important; }
-      .no-print { display: none !important; }
-      #dashboard-container-card { border: none !important; box-shadow: none !important; min-height: 0 !important; height: auto !important; }
-      .print-border { border: 1px solid #E6DFD5 !important; }
-      /* Force background colors to show in PDF */
-      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-      @page { size: landscape; margin: 10mm; }
+      .print-only {
+        display: block !important;
+      }
+      .no-print {
+        display: none !important;
+      }
     }
   </style>
 </head>
-<body class="min-h-screen w-full bg-[#EAEAEA] dark:bg-slate-950 text-slate-800 dark:text-slate-200 flex flex-col p-4 lg:p-6 overflow-x-hidden">
+<body class="min-h-screen text-slate-800 flex flex-col justify-between overflow-x-hidden">
 
-  <!-- Back Button (Outside Dashboard) -->
-  <!-- <div class="w-full max-w-[1800px] mx-auto mb-4 flex items-center justify-between no-print">
-    <a href="IPPF_Technical_Proposal.html" class="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-ippfred dark:hover:text-rose-400 transition-colors font-bold text-sm">
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-      Go back to IPPF Proposal
+  <!-- Back Button (No Print) -->
+  <div class="w-full max-w-[1440px] mx-auto px-4 lg:px-6 pt-4 no-print">
+    <a href="#" onclick="goBackToSourcePage(event)" class="inline-flex items-center gap-2 text-slate-600 hover:text-[#E11B22] transition-colors font-bold text-sm bg-white hover:bg-red-50 px-3 py-2 rounded-lg border border-slate-200 hover:border-red-200 shadow-sm">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+      </svg>
+      Back to Proposal
     </a>
+  </div>
+
+  <!-- Print/PDF Only Header Text -->
+  <section class="print-only pt-8 pb-6" style="width:100%; max-width:none; margin:0; padding-left:2.5rem; padding-right:2.5rem;">
+    <div class="flex items-start gap-6">
+      <div class="flex-shrink-0 pt-2">
+        <img src="https://www.ippf.org/themes/ippf_general/ippf-logo-main-red.svg" 
+             onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/e/e1/IPPF_logo.png'"
+             alt="IPPF Official Logo" 
+             class="h-16 w-auto object-contain">
+      </div>
+      <div class="text-left max-w-5xl">
+        <div class="inline-block px-3 py-1 mb-4 text-xs font-bold tracking-wider text-red-600 uppercase border border-red-200 rounded-full bg-red-50">
+          Dashboard Concept Annex
+        </div>
+        <h1 class="text-3xl md:text-5xl font-extrabold leading-tight tracking-tight text-slate-900">
+          MA-Facing Dashboard Concept Mockup
+        </h1>
+        <p class="text-lg text-slate-600 mt-4 max-w-4xl leading-relaxed">
+          An illustrative Power BI embedded dashboard concept for Member Association-facing performance monitoring. This mockup demonstrates affiliate-level indicators, regional benchmarking, funding mix, grant delivery health, data quality views, multilingual access, and role-based dashboard interaction for discussion during stakeholder workshops.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Top Control Bar & Workspace Mode Switcher -->
+  <!-- <div class="bg-[#1F1625] text-white px-4 py-2 flex flex-wrap items-center justify-between gap-3 text-xs border-b border-purple-950/40 select-none">
+    <div class="flex items-center gap-3">
+      <div class="flex items-center gap-1.5 bg-rose-950/60 px-2.5 py-1 rounded border border-rose-800/30">
+        <span class="w-1.5 h-1.5 rounded-full bg-[#E11B22] animate-pulse"></span>
+        <span class="font-semibold tracking-wider uppercase text-[10px]">Part 1 Stakeholder Workshop Tool</span>
+      </div>
+      <p class="text-slate-300 hidden md:inline-block">Feel free to change values, languages, and layout configurations live.</p>
+    </div>
+
+    <div class="flex items-center gap-4">
+      <div class="flex items-center bg-slate-900 rounded-lg p-0.5 border border-slate-800">
+        <button onclick="setMode('portal')" id="btn-mode-portal" class="px-3 py-1 rounded font-bold transition-all text-slate-400 hover:text-white">
+          Web Portal View
+        </button>
+        <button onclick="setMode('pbi')" id="btn-mode-pbi" class="px-3 py-1 rounded font-bold transition-all bg-amber-500 text-slate-950 flex items-center gap-1.5">
+
+          <img src="https://upload.wikimedia.org/wikipedia/commons/c/cf/New_Power_BI_Logo.svg" alt="Power BI" class="w-3.5 h-3.5">
+          Power BI Embedded Mode
+        </button>
+      </div>
+    </div>
   </div> -->
-<!-- 
-  <div class="w-full bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm no-print">
-        <div class="max-w-[1600px] mx-auto px-4 lg:px-8 xl:px-12 py-4 flex items-center justify-between">
-            <a href="IPPF_Technical_Proposal.html" class="flex items-center gap-2 text-slate-600 hover:text-[#E31837] transition-colors font-bold text-sm bg-slate-50 hover:bg-red-50 px-3 py-2 rounded-lg border border-slate-200 hover:border-red-200">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                </svg>
-                Go back to IPPF Proposal
-            </a>
-        </div>
-    </div> -->
 
-<div class="w-full max-w-[1800px] mx-auto mb-4 no-print">
-    <a href="javascript:history.back()" class="inline-flex items-center gap-2 text-slate-600 hover:text-[#E31837] transition-colors font-bold text-sm bg-slate-50 hover:bg-red-50 px-3 py-2 rounded-lg border border-slate-200 hover:border-red-200">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-        </svg>
-        Go back to Proposal
-    </a>
-</div>
-
-
-  <!-- Main Viewport Container (Flexible Width, Min-Height lock to prevent overlap) -->
-  <div class="w-full max-w-[1800px] mx-auto flex-1 flex flex-col" id="main-frame-wrapper">
+  <!-- Main Viewport Container (optimized for landscape presentation) -->
+  <div class="w-full max-w-[1440px] mx-auto px-4 lg:px-6 py-4 flex-grow flex flex-col justify-center" id="main-frame-wrapper">
     
-    <!-- Outer Card Simulator modeling Power BI Embedded -->
-    <!-- Responsive logic: On desktop (lg) it fits viewport height minus margins, but won't squash below 850px. On mobile, it scrolls naturally. -->
-    <div id="dashboard-container-card" class="bg-white dark:bg-slate-900 rounded-xl overflow-hidden flex flex-col flex-1 shadow-2xl border border-slate-300 dark:border-slate-700 transition-all duration-300 lg:h-[calc(100vh-7rem)] lg:min-h-[850px] print:h-auto print:min-h-0">
+    <!-- Outer Card Simulator to model standard dashboard embedding -->
+    <div id="dashboard-container-card" class="bg-white rounded-xl border-2 border-slate-300 shadow-2xl overflow-hidden flex flex-col pbi-frame transition-all duration-300">
       
-      <!-- Power BI Workspace Top Chrome -->
-      <div id="pbi-chrome" class="flex-none flex bg-[#F3F2F1] dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-5 py-2.5 items-center justify-between text-xs text-slate-700 dark:text-slate-300 select-none no-print transition-colors">
+      <!-- Power BI Workspace Top Chrome (Only visible in Power BI Mode) -->
+      <div id="pbi-chrome" class="flex bg-[#F3F2F1] border-b border-slate-200 px-4 py-2 items-center justify-between text-xs text-slate-700 select-none">
         <div class="flex items-center gap-2">
-          <!-- Power BI Icon -->
-          <img src="https://upload.wikimedia.org/wikipedia/commons/c/cf/New_Power_BI_Logo.svg" alt="Power BI" class="w-4 h-4">
-          <span class="font-semibold text-slate-900 dark:text-white">Power BI Service</span>
-          <span class="text-slate-400 dark:text-slate-500">/</span>
-          <span class="text-slate-600 dark:text-slate-400 hidden sm:inline">IPPF Global Performance Workspaces</span>
-          <span class="text-slate-400 dark:text-slate-500 hidden sm:inline">/</span>
-          <span class="bg-rose-100 dark:bg-rose-900/40 text-rose-800 dark:text-rose-300 font-bold px-2 py-0.5 rounded text-[10px]" id="pbi-active-lbl">Country A embedded</span>
+          <img src="https://upload.wikimedia.org/wikipedia/commons/c/cf/New_Power_BI_Logo.svg" alt="Power BI Icon" class="w-4 h-4">
+          <span class="font-semibold text-slate-900">Power BI Service</span>
+          <span class="text-slate-400">/</span>
+          <span class="text-slate-600">IPPF Global Performance Workspaces</span>
+          <span class="text-slate-400">/</span>
+          <span class="bg-rose-100 text-rose-800 font-bold px-1.5 py-0.5 rounded text-[10px]" id="pbi-active-lbl">Country A embedded</span>
         </div>
-        
-        <!-- Controls: Dark Mode & PDF Export -->
-        <div class="flex items-center gap-4 text-slate-500 dark:text-slate-400">
-          <button onclick="toggleDarkMode()" class="hover:text-slate-800 dark:hover:text-white flex items-center gap-1.5 px-2 py-1 rounded hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
-            <span class="font-bold hidden sm:inline">Dark Mode</span>
-          </button>
-          <!-- <span class="text-slate-300 dark:text-slate-600 hidden sm:inline">|</span>
-          <button onclick="window.print()" class="hover:text-slate-800 dark:hover:text-white flex items-center gap-1.5 px-2 py-1 rounded hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
-            <svg class="w-4 h-4 text-ippfred" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-            <span class="font-bold hidden sm:inline">Save as PDF</span>
-          </button> -->
+        <div class="flex items-center gap-3 text-slate-500">
+          <button class="hover:text-slate-800 flex items-center gap-1"><span class="text-sm">&#x21BB;</span> Refresh</button>
+          <span class="text-slate-300">|</span>
+          <button class="hover:text-slate-800 flex items-center gap-1"><span class="text-sm">&#x2912;</span> Export Report</button>
+          <span class="text-slate-300">|</span>
+          <button class="hover:text-slate-800 flex items-center gap-1"><span class="text-sm">&#x2699;</span> Edit layout</button>
         </div>
       </div>
 
-      <!-- Core Content - Uses flex-1 and min-h-0 to appropriately size inner elements -->
-      <div class="flex-1 flex flex-col gap-4 p-4 lg:p-6 bg-white dark:bg-slate-900 overflow-y-auto lg:overflow-hidden transition-colors duration-300">
+      <!-- Core Content -->
+      <div class="p-5 lg:p-7 flex flex-col gap-5">
         
         <!-- Header Panel with Official Red IPPF Logo and Configuration Selectors -->
-        <div class="flex-none flex flex-col md:flex-row md:items-center justify-between gap-4 pb-3 border-b border-[#E6DFD5] dark:border-slate-700">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-5 pb-5 border-b border-[#E6DFD5]">
           
           <!-- Logo & Brand Description -->
           <div class="flex items-center gap-4">
-            <div class="bg-white p-1 rounded no-print">
-              <a href="https://www.ippf.org/" target="_blank" class="flex-shrink-0">
-                <img src="https://www.ippf.org/themes/ippf_general/ippf-logo-main-red.svg" 
-                     onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/e/e1/IPPF_logo.png'"
-                     alt="IPPF Official Logo" 
-                     class="h-10 w-auto object-contain">
-              </a>
-            </div>
-            <div class="h-10 w-px bg-[#E6DFD5] dark:bg-slate-700 hidden sm:block"></div>
+            <!-- Official IPPF Red Logo -->
+            <a href="https://www.ippf.org/" target="_blank" class="flex-shrink-0">
+              <img src="https://www.ippf.org/themes/ippf_general/ippf-logo-main-red.svg" 
+                   onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/e/e1/IPPF_logo.png'"
+                   alt="IPPF Official Logo" 
+                   class="h-12 w-auto object-contain">
+            </a>
+            <div class="h-10 w-px bg-[#E6DFD5] hidden sm:block"></div>
             <div>
-              <div class="flex items-center gap-2 mb-1">
-                <span class="text-[10px] uppercase font-extrabold tracking-wider bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400 px-2 py-0.5 rounded" id="badge-view">Member Association View</span>
-                <span class="text-[10px] uppercase font-semibold text-slate-500 dark:text-slate-400" id="badge-phase">Analytics Dashboard Mockup</span>
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-[10px] uppercase font-extrabold tracking-wider bg-rose-100 text-rose-700 px-2 py-0.5 rounded" id="badge-view">Member Association View</span>
+                <span class="text-[10px] uppercase font-semibold text-slate-500" id="badge-phase">Needs Analysis Mockup</span>
               </div>
-              <h1 class="text-xl lg:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight" id="lbl-title">Affiliate Performance Dashboard</h1>
+              <h1 class="text-lg lg:text-xl font-extrabold text-slate-900 tracking-tight" id="lbl-title">Affiliate Performance Dashboard</h1>
             </div>
           </div>
 
           <!-- Configuration Selector Panel -->
-          <div class="bg-slate-50 dark:bg-slate-800 p-2.5 rounded-lg border border-slate-200/80 dark:border-slate-700 flex flex-wrap items-center gap-3 text-xs print-border no-print">
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200/80 flex flex-wrap items-center gap-3 text-xs">
             
-            <div class="flex flex-col min-w-[120px]">
-              <span class="text-[9px] uppercase font-bold text-slate-400 dark:text-slate-500 mb-1" id="drop-lbl-affiliate">Select Affiliate</span>
-              <select id="affiliate-picker" onchange="updateDashboard()" class="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded px-2.5 py-1.5 font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-ippfred outline-none cursor-pointer">
+            <!-- Affiliate Select -->
+            <div class="flex flex-col">
+              <span class="text-[9px] uppercase font-bold text-slate-400 mb-1" id="drop-lbl-affiliate">Select Affiliate</span>
+              <select id="affiliate-picker" onchange="updateDashboard()" class="bg-white border border-slate-300 rounded px-2.5 py-1.5 font-bold text-slate-900 focus:ring-2 focus:ring-[#E11B22] outline-none cursor-pointer">
                 <option value="countryA" selected>Country A (MA View)</option>
-                <option value="countryB">Country B  (MA View)</option>
-                <option value="countryC">Country C  (MA View)</option>
-                <option value="countryD">Country D  (MA View)</option>
+                <option value="countryB">Country B (MA View)</option>
+                <option value="countryC">Country C (MA View)</option>
+                <option value="countryD">Country D (MA View)</option>
               </select>
             </div>
 
-            <div class="flex flex-col min-w-[100px]">
-              <span class="text-[9px] uppercase font-bold text-slate-400 dark:text-slate-500 mb-1" id="drop-lbl-region">Region</span>
-              <select id="region-picker" class="bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 rounded px-2.5 py-1.5 font-medium outline-none pointer-events-none">
+            <!-- Region Select (Linked to Affiliate state) -->
+            <div class="flex flex-col">
+              <span class="text-[9px] uppercase font-bold text-slate-400 mb-1" id="drop-lbl-region">Region</span>
+              <select id="region-picker" class="bg-slate-100 border border-slate-200 text-slate-500 rounded px-2.5 py-1.5 font-medium outline-none pointer-events-none">
                 <option value="region1">Region 1</option>
                 <option value="region2">Region 2</option>
                 <option value="region3">Region 3</option>
@@ -171,21 +226,23 @@
               </select>
             </div>
 
-            <div class="flex flex-col min-w-[100px]">
-              <span class="text-[9px] uppercase font-bold text-slate-400 dark:text-slate-500 mb-1" id="drop-lbl-period">Period</span>
-              <select id="period-picker" onchange="updateDashboard()" class="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded px-2.5 py-1.5 font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-ippfred outline-none cursor-pointer">
+            <!-- Period Select -->
+            <div class="flex flex-col">
+              <span class="text-[9px] uppercase font-bold text-slate-400 mb-1" id="drop-lbl-period">Period</span>
+              <select id="period-picker" onchange="updateDashboard()" class="bg-white border border-slate-300 rounded px-2.5 py-1.5 font-bold text-slate-900 focus:ring-2 focus:ring-[#E11B22] outline-none cursor-pointer">
                 <option value="2025" selected>FY 2025</option>
                 <option value="2024">FY 2024</option>
               </select>
             </div>
 
+            <!-- Language Switcher inside control panel -->
             <div class="flex flex-col">
-              <span class="text-[9px] uppercase font-bold text-slate-400 dark:text-slate-500 mb-1 text-center" id="drop-lbl-lang">Language</span>
-              <div class="flex bg-slate-200/80 dark:bg-slate-700 p-0.5 rounded border border-slate-300 dark:border-slate-600">
-                <button onclick="setLang('en')" id="btn-en" class="px-2 py-1 font-extrabold text-[10px] rounded transition-all bg-white dark:bg-slate-600 text-slate-900 dark:text-white shadow-sm">EN</button>
-                <button onclick="setLang('fr')" id="btn-fr" class="px-2 py-1 font-extrabold text-[10px] rounded transition-all text-slate-600 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white">FR</button>
-                <button onclick="setLang('es')" id="btn-es" class="px-2 py-1 font-extrabold text-[10px] rounded transition-all text-slate-600 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white">ES</button>
-                <button onclick="setLang('ar')" id="btn-ar" class="px-2 py-1 font-extrabold text-[10px] rounded transition-all text-slate-600 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white">AR</button>
+              <span class="text-[9px] uppercase font-bold text-slate-400 mb-1 text-center" id="drop-lbl-lang">Language</span>
+              <div class="flex bg-slate-200/80 p-0.5 rounded border border-slate-300">
+                <button onclick="setLang('en')" id="btn-en" class="px-2 py-1 font-extrabold text-[10px] rounded transition-all bg-white text-slate-900 shadow-sm">EN</button>
+                <button onclick="setLang('fr')" id="btn-fr" class="px-2 py-1 font-extrabold text-[10px] rounded transition-all text-slate-600 hover:text-slate-950">FR</button>
+                <button onclick="setLang('es')" id="btn-es" class="px-2 py-1 font-extrabold text-[10px] rounded transition-all text-slate-600 hover:text-slate-950">ES</button>
+                <button onclick="setLang('ar')" id="btn-ar" class="px-2 py-1 font-extrabold text-[10px] rounded transition-all text-slate-600 hover:text-slate-950">AR</button>
               </div>
             </div>
 
@@ -203,78 +260,84 @@
           </div>
         </div>
 
-        <!-- KPI Metrics Grid -->
-        <div class="flex-none grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 print:grid-cols-4 gap-4" id="kpi-grid">
+        <!-- KPI Metrics Grid (Landscape Row) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="kpi-grid">
           
-          <div class="bg-white dark:bg-slate-800 border border-[#E6DFD5] dark:border-slate-700 p-4 lg:p-5 rounded-xl flex flex-col justify-between interactive-element relative overflow-hidden print-border">
-            <div class="absolute right-0 top-0 w-16 h-16 bg-[#FFF2F2] dark:bg-red-900/10 rounded-full translate-x-4 -translate-y-4"></div>
+          <!-- KPI 1: Services Delivered (CYP) -->
+          <div class="bg-white border border-[#E6DFD5] p-4 rounded-xl flex flex-col justify-between interactive-element relative overflow-hidden">
+            <div class="absolute right-0 top-0 w-16 h-16 bg-[#FFF2F2] rounded-full translate-x-6 -translate-y-6"></div>
             <div class="relative z-10">
-              <span class="text-xs uppercase tracking-wider font-extrabold text-slate-400 dark:text-slate-500 block" id="kpi-1-label">Services Delivered (CYP)</span>
-              <span class="text-3xl font-black text-slate-900 dark:text-white tracking-tight block mt-1" id="kpi-1-value">486,200</span>
+              <span class="text-[10px] uppercase tracking-wider font-extrabold text-slate-400 block" id="kpi-1-label">Services Delivered (CYP)</span>
+              <span class="text-2xl font-black text-slate-900 tracking-tight block mt-1.5" id="kpi-1-value">486,200</span>
             </div>
-            <div class="mt-3 flex items-center gap-2 text-xs">
-              <span class="font-bold text-[#0F6E63] dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/50 px-1.5 py-0.5 rounded flex items-center" id="kpi-1-trend">
+            <div class="mt-3 flex items-center gap-1.5 text-xs">
+              <span class="font-bold text-[#0F6E63] bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded flex items-center gap-0.5" id="kpi-1-trend">
                 <span>&#9650;</span> 8.4%
               </span>
-              <span class="text-slate-400 dark:text-slate-500 truncate" id="kpi-1-sub">vs prior year</span>
+              <span class="text-slate-400" id="kpi-1-sub">vs prior year</span>
             </div>
           </div>
 
-          <div class="bg-white dark:bg-slate-800 border border-[#E6DFD5] dark:border-slate-700 p-4 lg:p-5 rounded-xl flex flex-col justify-between interactive-element relative overflow-hidden print-border">
+          <!-- KPI 2: Budget Utilisation -->
+          <div class="bg-white border border-[#E6DFD5] p-4 rounded-xl flex flex-col justify-between interactive-element relative overflow-hidden">
             <div class="relative z-10">
-              <span class="text-xs uppercase tracking-wider font-extrabold text-slate-400 dark:text-slate-500 block" id="kpi-2-label">Budget Utilisation</span>
-              <span class="text-3xl font-black text-slate-900 dark:text-white tracking-tight block mt-1" id="kpi-2-value">82.3%</span>
+              <span class="text-[10px] uppercase tracking-wider font-extrabold text-slate-400 block" id="kpi-2-label">Budget Utilisation</span>
+              <span class="text-2xl font-black text-slate-900 tracking-tight block mt-1.5" id="kpi-2-value">82.3%</span>
             </div>
-            <div class="w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full mt-3 overflow-hidden">
-              <div id="kpi-2-bar" class="bg-ippfred h-full rounded-full chart-progress-transition" style="width: 82.3%"></div>
+            <!-- Custom animated progress line -->
+            <div class="w-full bg-slate-100 h-2 rounded-full mt-3 overflow-hidden">
+              <div id="kpi-2-bar" class="bg-[#E11B22] h-full rounded-full chart-progress-transition" style="width: 82.3%"></div>
             </div>
-            <div class="mt-2 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 font-medium">
+            <div class="mt-2.5 flex items-center justify-between text-[11px] text-slate-500">
               <span id="kpi-2-spent">USD 3.1M Deployed</span>
               <span id="kpi-2-total">of 3.8M</span>
             </div>
           </div>
 
-          <div class="bg-white dark:bg-slate-800 border border-[#E6DFD5] dark:border-slate-700 p-4 lg:p-5 rounded-xl flex flex-col justify-between interactive-element relative overflow-hidden print-border">
-            <div class="absolute right-0 top-0 w-16 h-16 bg-slate-50 dark:bg-slate-700/50 rounded-full translate-x-4 -translate-y-4"></div>
+          <!-- KPI 3: Active Service Points -->
+          <div class="bg-white border border-[#E6DFD5] p-4 rounded-xl flex flex-col justify-between interactive-element relative overflow-hidden">
+            <div class="absolute right-0 top-0 w-16 h-16 bg-slate-50 rounded-full translate-x-6 -translate-y-6"></div>
             <div class="relative z-10">
-              <span class="text-xs uppercase tracking-wider font-extrabold text-slate-400 dark:text-slate-500 block" id="kpi-3-label">Active Service Points</span>
-              <span class="text-3xl font-black text-slate-900 dark:text-white tracking-tight block mt-1" id="kpi-3-value">147</span>
+              <span class="text-[10px] uppercase tracking-wider font-extrabold text-slate-400 block" id="kpi-3-label">Active Service Points</span>
+              <span class="text-2xl font-black text-slate-900 tracking-tight block mt-1.5" id="kpi-3-value">147</span>
             </div>
-            <div class="mt-3 flex items-center gap-2 text-xs">
-              <span class="font-bold text-[#0F6E63] dark:text-emerald-400" id="kpi-3-trend">&#9650; +12</span>
-              <span class="text-slate-400 dark:text-slate-500 truncate" id="kpi-3-sub">new outlets globally</span>
+            <div class="mt-3 flex items-center gap-1.5 text-xs">
+              <span class="font-bold text-[#0F6E63]" id="kpi-3-trend">&#9650; +12</span>
+              <span class="text-slate-400" id="kpi-3-sub">new outlets globally</span>
             </div>
           </div>
 
-          <div id="kpi-4-card" class="bg-white dark:bg-slate-800 border border-[#E6DFD5] dark:border-slate-700 p-4 lg:p-5 rounded-xl flex flex-col justify-between interactive-element relative overflow-hidden transition-colors duration-300 print-border">
+          <!-- KPI 4: Compliance Threshold Tracker -->
+          <div id="kpi-4-card" class="bg-white border border-[#E6DFD5] p-4 rounded-xl flex flex-col justify-between interactive-element relative overflow-hidden transition-colors duration-300">
             <div class="relative z-10">
-              <span class="text-xs uppercase tracking-wider font-extrabold text-slate-400 dark:text-slate-500 block" id="kpi-4-label">Grant Reporting on Time</span>
-              <span class="text-3xl font-black text-amber-600 dark:text-amber-400 tracking-tight block mt-1" id="kpi-4-value">91%</span>
+              <span class="text-[10px] uppercase tracking-wider font-extrabold text-slate-400 block" id="kpi-4-label">Grant Reporting on Time</span>
+              <span class="text-2xl font-black text-amber-600 tracking-tight block mt-1.5" id="kpi-4-value">91%</span>
             </div>
-            <div class="mt-3 flex items-center gap-2 text-xs">
-              <span class="font-bold text-amber-600 dark:text-amber-400" id="kpi-4-trend">&#9660; -3 pts</span>
-              <span class="text-slate-400 dark:text-slate-500 truncate" id="kpi-4-sub">vs target 95%</span>
+            <div class="mt-3 flex items-center gap-1.5 text-xs">
+              <span class="font-bold text-amber-600" id="kpi-4-trend">&#9660; -3 pts</span>
+              <span class="text-slate-400" id="kpi-4-sub">vs target 95%</span>
             </div>
           </div>
 
         </div>
 
-        <!-- Middle Chart Row (Flex-1 stretches it safely on desktop) -->
-        <div class="flex-1 grid grid-cols-1 lg:grid-cols-12 print:grid-cols-12 gap-4 lg:min-h-0">
+        <!-- Middle Chart Row (Main Grid) -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
           
-          <!-- Column 1: Service Delivery Bar Chart -->
-          <div class="lg:col-span-8 print:col-span-8 bg-white dark:bg-slate-800 border border-[#E6DFD5] dark:border-slate-700 p-4 lg:p-5 rounded-xl flex flex-col print-border">
-            <div class="flex-none flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-700 mb-4">
+          <!-- Column 1: Service Delivery by Quarter -->
+          <div class="lg:col-span-8 bg-white border border-[#E6DFD5] p-5 rounded-xl flex flex-col justify-between">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3 mb-4">
               <div>
-                <h3 class="text-xs lg:text-sm font-extrabold tracking-wider text-slate-900 dark:text-white uppercase flex items-center gap-2">
-                  <span class="w-1.5 h-3.5 bg-ippfred rounded-sm"></span>
+                <h3 class="text-xs font-extrabold tracking-wider text-slate-900 uppercase flex items-center gap-2">
+                  <span class="w-1.5 h-3 bg-[#E11B22] rounded-sm"></span>
                   <span id="chart-1-heading">Service Delivery Trends</span>
                 </h3>
-                <p class="text-xs text-slate-400 dark:text-slate-500 mt-1" id="chart-1-sub">Couple-years of protection (CYP), split by category</p>
+                <p class="text-[11px] text-slate-400 mt-0.5" id="chart-1-sub">Couple-years of protection (CYP), split by category</p>
               </div>
-              <div class="flex items-center gap-4 text-xs font-bold dark:text-slate-300">
+              <!-- Legends -->
+              <div class="flex items-center gap-4 text-[11px] font-bold">
                 <div class="flex items-center gap-1.5">
-                  <span class="w-3 h-3 rounded bg-ippfred"></span>
+                  <span class="w-3 h-3 rounded bg-[#E11B22]"></span>
                   <span id="leg-contra">Contraceptive services</span>
                 </div>
                 <div class="flex items-center gap-1.5">
@@ -284,222 +347,406 @@
               </div>
             </div>
 
-            <!-- Custom Graphic Stacked Bar Layout -->
-            <div class="flex-1 flex items-end justify-around pt-2 px-2 select-none min-h-[200px] lg:min-h-0 h-full">
+            <!-- Custom Graphic Stacked Bar Layout (Responsive Landscape Aspect) -->
+            <div class="h-44 flex items-end justify-around pt-4 pb-2 px-4 select-none">
+              
               <!-- Q1 -->
-              <div class="flex flex-col items-center gap-2 w-1/5 group cursor-pointer h-full">
-                <div class="w-12 lg:w-16 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-t flex flex-col justify-end overflow-hidden h-full w-full relative shadow-inner transition-colors">
+              <div class="flex flex-col items-center gap-2 w-1/5 group cursor-pointer">
+                <div class="w-14 bg-slate-100 hover:bg-slate-200 rounded-t-md flex flex-col justify-end overflow-hidden h-32 relative shadow-inner transition-colors">
                   <div id="bar-q1-seg2" class="bg-[#7FC0B3] w-full chart-bar-transition" style="height: 22%"></div>
-                  <div id="bar-q1-seg1" class="bg-ippfred w-full chart-bar-transition" style="height: 58%"></div>
-                  <div class="opacity-0 group-hover:opacity-100 absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-[#1F1625] dark:bg-slate-950 text-white text-xs p-2 rounded shadow-xl transition-opacity duration-200 z-30 pointer-events-none w-28 text-center">
-                    <p class="font-extrabold border-b border-white/20 pb-1 mb-1">Quarter 1</p>
+                  <div id="bar-q1-seg1" class="bg-[#E11B22] w-full chart-bar-transition" style="height: 58%"></div>
+                  <!-- Mini tooltip -->
+                  <div class="opacity-0 group-hover:opacity-100 absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 bg-[#1F1625] text-white text-[10px] p-2 rounded shadow-lg transition-opacity duration-200 z-30 pointer-events-none w-24 text-center">
+                    <p class="font-extrabold border-b border-white/20 pb-0.5">Quarter 1</p>
                     <p id="tip-q1-seg1">Contra: 58%</p>
                     <p id="tip-q1-seg2">SRH: 22%</p>
                   </div>
                 </div>
-                <span class="text-xs font-bold text-slate-500 dark:text-slate-400">Q1</span>
+                <span class="text-xs font-bold text-slate-500">Q1</span>
               </div>
+
               <!-- Q2 -->
-              <div class="flex flex-col items-center gap-2 w-1/5 group cursor-pointer h-full">
-                <div class="w-12 lg:w-16 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-t flex flex-col justify-end overflow-hidden h-full w-full relative shadow-inner transition-colors">
+              <div class="flex flex-col items-center gap-2 w-1/5 group cursor-pointer">
+                <div class="w-14 bg-slate-100 hover:bg-slate-200 rounded-t-md flex flex-col justify-end overflow-hidden h-32 relative shadow-inner transition-colors">
                   <div id="bar-q2-seg2" class="bg-[#7FC0B3] w-full chart-bar-transition" style="height: 20%"></div>
-                  <div id="bar-q2-seg1" class="bg-ippfred w-full chart-bar-transition" style="height: 64%"></div>
-                  <div class="opacity-0 group-hover:opacity-100 absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-[#1F1625] dark:bg-slate-950 text-white text-xs p-2 rounded shadow-xl transition-opacity duration-200 z-30 pointer-events-none w-28 text-center">
-                    <p class="font-extrabold border-b border-white/20 pb-1 mb-1">Quarter 2</p>
+                  <div id="bar-q2-seg1" class="bg-[#E11B22] w-full chart-bar-transition" style="height: 64%"></div>
+                  <div class="opacity-0 group-hover:opacity-100 absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 bg-[#1F1625] text-white text-[10px] p-2 rounded shadow-lg transition-opacity duration-200 z-30 pointer-events-none w-24 text-center">
+                    <p class="font-extrabold border-b border-white/20 pb-0.5">Quarter 2</p>
                     <p id="tip-q2-seg1">Contra: 64%</p>
                     <p id="tip-q2-seg2">SRH: 20%</p>
                   </div>
                 </div>
-                <span class="text-xs font-bold text-slate-500 dark:text-slate-400">Q2</span>
+                <span class="text-xs font-bold text-slate-500">Q2</span>
               </div>
+
               <!-- Q3 -->
-              <div class="flex flex-col items-center gap-2 w-1/5 group cursor-pointer h-full">
-                <div class="w-12 lg:w-16 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-t flex flex-col justify-end overflow-hidden h-full w-full relative shadow-inner transition-colors">
+              <div class="flex flex-col items-center gap-2 w-1/5 group cursor-pointer">
+                <div class="w-14 bg-slate-100 hover:bg-slate-200 rounded-t-md flex flex-col justify-end overflow-hidden h-32 relative shadow-inner transition-colors">
                   <div id="bar-q3-seg2" class="bg-[#7FC0B3] w-full chart-bar-transition" style="height: 26%"></div>
-                  <div id="bar-q3-seg1" class="bg-ippfred w-full chart-bar-transition" style="height: 55%"></div>
-                  <div class="opacity-0 group-hover:opacity-100 absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-[#1F1625] dark:bg-slate-950 text-white text-xs p-2 rounded shadow-xl transition-opacity duration-200 z-30 pointer-events-none w-28 text-center">
-                    <p class="font-extrabold border-b border-white/20 pb-1 mb-1">Quarter 3</p>
+                  <div id="bar-q3-seg1" class="bg-[#E11B22] w-full chart-bar-transition" style="height: 55%"></div>
+                  <div class="opacity-0 group-hover:opacity-100 absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 bg-[#1F1625] text-white text-[10px] p-2 rounded shadow-lg transition-opacity duration-200 z-30 pointer-events-none w-24 text-center">
+                    <p class="font-extrabold border-b border-white/20 pb-0.5">Quarter 3</p>
                     <p id="tip-q3-seg1">Contra: 55%</p>
                     <p id="tip-q3-seg2">SRH: 26%</p>
                   </div>
                 </div>
-                <span class="text-xs font-bold text-slate-500 dark:text-slate-400">Q3</span>
+                <span class="text-xs font-bold text-slate-500">Q3</span>
               </div>
+
               <!-- Q4 -->
-              <div class="flex flex-col items-center gap-2 w-1/5 group cursor-pointer h-full">
-                <div class="w-12 lg:w-16 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-t flex flex-col justify-end overflow-hidden h-full w-full relative shadow-inner transition-colors">
+              <div class="flex flex-col items-center gap-2 w-1/5 group cursor-pointer">
+                <div class="w-14 bg-slate-100 hover:bg-slate-200 rounded-t-md flex flex-col justify-end overflow-hidden h-32 relative shadow-inner transition-colors">
                   <div id="bar-q4-seg2" class="bg-[#7FC0B3] w-full chart-bar-transition" style="height: 24%"></div>
-                  <div id="bar-q4-seg1" class="bg-ippfred w-full chart-bar-transition" style="height: 72%"></div>
-                  <div class="opacity-0 group-hover:opacity-100 absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-[#1F1625] dark:bg-slate-950 text-white text-xs p-2 rounded shadow-xl transition-opacity duration-200 z-30 pointer-events-none w-28 text-center">
-                    <p class="font-extrabold border-b border-white/20 pb-1 mb-1">Quarter 4</p>
+                  <div id="bar-q4-seg1" class="bg-[#E11B22] w-full chart-bar-transition" style="height: 72%"></div>
+                  <div class="opacity-0 group-hover:opacity-100 absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 bg-[#1F1625] text-white text-[10px] p-2 rounded shadow-lg transition-opacity duration-200 z-30 pointer-events-none w-24 text-center">
+                    <p class="font-extrabold border-b border-white/20 pb-0.5">Quarter 4</p>
                     <p id="tip-q4-seg1">Contra: 72%</p>
                     <p id="tip-q4-seg2">SRH: 24%</p>
                   </div>
                 </div>
-                <span class="text-xs font-bold text-slate-500 dark:text-slate-400">Q4</span>
+                <span class="text-xs font-bold text-slate-500">Q4</span>
               </div>
+
             </div>
           </div>
 
           <!-- Column 2: Regional Peers Benchmark -->
-          <div class="lg:col-span-4 print:col-span-4 bg-white dark:bg-slate-800 border border-[#E6DFD5] dark:border-slate-700 p-4 lg:p-5 rounded-xl flex flex-col print-border">
-            <div class="flex-none items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3 mb-4 flex">
-              <h3 class="text-xs lg:text-sm font-extrabold tracking-wider text-slate-900 dark:text-white uppercase" id="chart-2-heading">Regional Benchmark</h3>
-              <span class="text-[9px] uppercase font-bold text-ippfred bg-rose-50 dark:bg-rose-900/30 border border-rose-100 dark:border-rose-800/50 px-2 py-0.5 rounded" id="tag-opt">Opt-In Active</span>
+          <div class="lg:col-span-4 bg-white border border-[#E6DFD5] p-5 rounded-xl flex flex-col justify-between">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+              <h3 class="text-xs font-extrabold tracking-wider text-slate-900 uppercase" id="chart-2-heading">Regional Benchmark</h3>
+              <span class="text-[9px] uppercase font-bold text-[#E11B22] bg-rose-50 border border-rose-100 px-2 py-0.5 rounded" id="tag-opt">Opt-In Active</span>
             </div>
 
-            <div class="flex-1 flex flex-col justify-between py-1 min-h-0 space-y-4">
-              <div class="space-y-1.5">
-                <div class="flex justify-between text-xs lg:text-sm">
-                  <span class="text-slate-500 dark:text-slate-400 font-medium" id="peer-a-lbl">Peer A (Anonymised)</span>
-                  <span class="font-bold text-slate-800 dark:text-slate-200" id="peer-a-val">88%</span>
+            <!-- Peer Comparison List -->
+            <div class="space-y-3 flex-grow justify-center flex flex-col">
+              
+              <!-- Peer A -->
+              <div class="space-y-1">
+                <div class="flex justify-between text-xs">
+                  <span class="text-slate-500 font-medium" id="peer-a-lbl">Peer A (Anonymised)</span>
+                  <span class="font-bold text-slate-800" id="peer-a-val">88%</span>
                 </div>
-                <div class="w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
-                  <div id="peer-a-bar" class="bg-ippfplum dark:bg-slate-400 h-full rounded-full chart-progress-transition" style="width: 88%"></div>
-                </div>
-              </div>
-
-              <div class="bg-rose-50/60 dark:bg-rose-900/20 border border-rose-100/55 dark:border-rose-800/50 p-3 rounded-lg space-y-1.5">
-                <div class="flex justify-between text-xs lg:text-sm font-bold">
-                  <span class="text-ippfred dark:text-rose-400" id="peer-self-lbl">You (Country A)</span>
-                  <span class="text-ippfred dark:text-rose-400" id="peer-self-val">82%</span>
-                </div>
-                <div class="w-full bg-rose-100 dark:bg-rose-950 h-2 rounded-full overflow-hidden">
-                  <div id="peer-self-bar" class="bg-ippfred h-full rounded-full chart-progress-transition" style="width: 82%"></div>
+                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                  <div id="peer-a-bar" class="bg-[#1F1625] h-full rounded-full chart-progress-transition" style="width: 88%"></div>
                 </div>
               </div>
 
-              <div class="space-y-1.5">
-                <div class="flex justify-between text-xs lg:text-sm">
-                  <span class="text-slate-500 dark:text-slate-400 font-medium" id="peer-b-lbl">Peer B (Anonymised)</span>
-                  <span class="font-bold text-slate-800 dark:text-slate-200" id="peer-b-val">79%</span>
+              <!-- Self Country -->
+              <div class="bg-rose-50/60 border border-rose-100/55 p-2 rounded-lg space-y-1">
+                <div class="flex justify-between text-xs font-bold">
+                  <span class="text-[#E11B22]" id="peer-self-lbl">You (Country A)</span>
+                  <span class="text-[#E11B22]" id="peer-self-val">82%</span>
                 </div>
-                <div class="w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
-                  <div id="peer-b-bar" class="bg-ippfplum/80 dark:bg-slate-500 h-full rounded-full chart-progress-transition" style="width: 79%"></div>
+                <div class="w-full bg-rose-100 h-2 rounded-full overflow-hidden">
+                  <div id="peer-self-bar" class="bg-[#E11B22] h-full rounded-full chart-progress-transition" style="width: 82%"></div>
                 </div>
               </div>
 
-              <div class="space-y-1.5 pt-2 border-t border-dashed border-slate-200 dark:border-slate-700">
-                <div class="flex justify-between text-xs lg:text-sm font-extrabold text-slate-800 dark:text-slate-300">
+              <!-- Peer B -->
+              <div class="space-y-1">
+                <div class="flex justify-between text-xs">
+                  <span class="text-slate-500 font-medium" id="peer-b-lbl">Peer B (Anonymised)</span>
+                  <span class="font-bold text-slate-800" id="peer-b-val">79%</span>
+                </div>
+                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                  <div id="peer-b-bar" class="bg-[#1F1625]/80 h-full rounded-full chart-progress-transition" style="width: 79%"></div>
+                </div>
+              </div>
+
+              <!-- Region Avg -->
+              <div class="space-y-1 pt-1.5 border-t border-dashed border-slate-200">
+                <div class="flex justify-between text-xs font-extrabold text-slate-800">
                   <span id="peer-avg-lbl">Region Average</span>
                   <span id="peer-avg-val">80%</span>
                 </div>
-                <div class="w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
-                  <div id="peer-avg-bar" class="bg-slate-400 dark:bg-slate-600 h-full rounded-full chart-progress-transition" style="width: 80%"></div>
+                <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                  <div id="peer-avg-bar" class="bg-slate-400 h-full rounded-full chart-progress-transition" style="width: 80%"></div>
                 </div>
               </div>
+
             </div>
           </div>
+
         </div>
 
-        <!-- Lower Grid Row -->
-        <div class="flex-1 grid grid-cols-1 md:grid-cols-3 print:grid-cols-3 gap-4 lg:min-h-0">
+        <!-- Lower Grid Row (Funding, Grants, Quality) -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
           
-          <div class="bg-white dark:bg-slate-800 border border-[#E6DFD5] dark:border-slate-700 p-4 lg:p-5 rounded-xl flex flex-col print-border">
-            <div class="flex-none border-b border-slate-100 dark:border-slate-700 pb-3 mb-3">
-              <h4 class="text-xs lg:text-sm font-extrabold text-slate-900 dark:text-white uppercase" id="col-1-heading">Funding Mix</h4>
-              <p class="text-xs text-slate-400 dark:text-slate-500 mt-1" id="col-1-sub">Proportional resource breakdown</p>
+          <!-- Funding Mix Card -->
+          <div class="bg-white border border-[#E6DFD5] p-5 rounded-xl flex flex-col justify-between interactive-element">
+            <div class="border-b border-slate-100 pb-3 mb-4">
+              <h4 class="text-xs font-extrabold text-slate-900 uppercase" id="col-1-heading">Funding Mix</h4>
+              <p class="text-[11px] text-slate-400 mt-0.5" id="col-1-sub">Proportional resource breakdown</p>
             </div>
             
-            <div class="flex-1 flex items-center justify-between min-h-0 gap-4">
-              <div class="relative w-20 h-20 lg:w-24 lg:h-24 flex-shrink-0">
+            <div class="flex items-center gap-5 my-2">
+              <!-- Inline High-Fidelity SVG Donut Chart with live parameters -->
+              <div class="relative w-24 h-24 flex-shrink-0">
                 <svg viewBox="0 0 36 36" class="w-full h-full transform -rotate-90">
-                  <circle cx="18" cy="18" r="15.915" fill="none" stroke-width="3" class="donut-track"></circle>
-                  <circle cx="18" cy="18" r="15.915" fill="none" stroke="#E11B22" stroke-width="3" stroke-dasharray="62 38" stroke-dashoffset="0" id="donut-segment-1" class="transition-all duration-500"></circle>
-                  <circle cx="18" cy="18" r="15.915" fill="none" stroke="#D98A2B" stroke-width="3" stroke-dasharray="22 78" stroke-dashoffset="-62" id="donut-segment-2" class="transition-all duration-500"></circle>
-                  <circle cx="18" cy="18" r="15.915" fill="none" stroke="#7FC0B3" stroke-width="3" stroke-dasharray="16 84" stroke-dashoffset="-84" id="donut-segment-3" class="transition-all duration-500"></circle>
+                  <circle cx="18" cy="18" r="15.915" fill="none" stroke="#F1ECE3" stroke-width="3"></circle>
+                  <!-- Dynamically edited donut segments -->
+                  <circle cx="18" cy="18" r="15.915" fill="none" stroke="#E11B22" stroke-width="3" 
+                          stroke-dasharray="62 38" stroke-dashoffset="0" id="donut-segment-1" class="transition-all duration-500"></circle>
+                  <circle cx="18" cy="18" r="15.915" fill="none" stroke="#D98A2B" stroke-width="3" 
+                          stroke-dasharray="22 78" stroke-dashoffset="-62" id="donut-segment-2" class="transition-all duration-500"></circle>
+                  <circle cx="18" cy="18" r="15.915" fill="none" stroke="#7FC0B3" stroke-width="3" 
+                          stroke-dasharray="16 84" stroke-dashoffset="-84" id="donut-segment-3" class="transition-all duration-500"></circle>
                 </svg>
                 <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
-                  <span class="text-[9px] uppercase font-bold text-slate-400 dark:text-slate-500">Total</span>
-                  <span id="donut-total" class="text-xs lg:text-sm font-black text-slate-900 dark:text-white leading-none mt-0.5">3.8M</span>
+                  <span class="text-[9px] uppercase font-bold text-slate-400">Total</span>
+                  <span id="donut-total" class="text-sm font-black text-slate-900">3.8M</span>
                 </div>
               </div>
 
-              <div class="space-y-1.5 text-[10px] lg:text-xs text-slate-600 dark:text-slate-300 font-medium">
-                <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-sm bg-ippfred"></span><span id="donut-lbl-1">Core Unrestricted: 62%</span></div>
-                <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-sm bg-[#D98A2B]"></span><span id="donut-lbl-2">Restricted: 22%</span></div>
-                <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-sm bg-[#7FC0B3]"></span><span id="donut-lbl-3">Locally Raised: 16%</span></div>
+              <!-- Legends with live parameters -->
+              <div class="space-y-1.5 text-[11px] text-slate-600 font-medium">
+                <div class="flex items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full bg-[#E11B22]"></span>
+                  <span id="donut-lbl-1">Core Unrestricted: 62%</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full bg-[#D98A2B]"></span>
+                  <span id="donut-lbl-2">Restricted: 22%</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full bg-[#7FC0B3]"></span>
+                  <span id="donut-lbl-3">Locally Raised: 16%</span>
+                </div>
               </div>
             </div>
           </div>
 
-          <div class="bg-white dark:bg-slate-800 border border-[#E6DFD5] dark:border-slate-700 p-4 lg:p-5 rounded-xl flex flex-col print-border">
-            <div class="flex-none border-b border-slate-100 dark:border-slate-700 pb-3 mb-4">
-              <h4 class="text-xs lg:text-sm font-extrabold text-slate-900 dark:text-white uppercase" id="col-2-heading">Grant Delivery Health</h4>
-              <p class="text-xs text-slate-400 dark:text-slate-500 mt-1" id="col-2-sub">Active implementation pipeline status</p>
+          <!-- Grant Implementation Pipeline -->
+          <div class="bg-white border border-[#E6DFD5] p-5 rounded-xl flex flex-col justify-between interactive-element">
+            <div class="border-b border-slate-100 pb-3 mb-4">
+              <h4 class="text-xs font-extrabold text-slate-900 uppercase" id="col-2-heading">Grant Delivery Health</h4>
+              <p class="text-[11px] text-slate-400 mt-0.5" id="col-2-sub">Active implementation pipeline status</p>
             </div>
-            <div class="flex-1 flex flex-col justify-evenly min-h-0 space-y-3">
-              <div class="space-y-1.5">
-                <div class="flex justify-between text-xs font-bold"><span class="text-slate-500 dark:text-slate-400" id="grant-status-1">On Track</span><span class="text-[#0F6E63] dark:text-emerald-400" id="grant-val-1">9 grants</span></div>
-                <div class="w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden"><div id="grant-bar-1" class="bg-[#0F6E63] dark:bg-emerald-500 h-full rounded-full chart-progress-transition" style="width: 75%"></div></div>
+            
+            <div class="space-y-3 my-1">
+              <!-- On Track -->
+              <div class="space-y-1">
+                <div class="flex justify-between text-xs font-bold">
+                  <span class="text-slate-500" id="grant-status-1">On Track</span>
+                  <span class="text-[#0F6E63]" id="grant-val-1">9 grants</span>
+                </div>
+                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                  <div id="grant-bar-1" class="bg-[#0F6E63] h-full rounded-full chart-progress-transition" style="width: 75%"></div>
+                </div>
               </div>
-              <div class="space-y-1.5">
-                <div class="flex justify-between text-xs font-bold"><span class="text-slate-500 dark:text-slate-400" id="grant-status-2">At Risk</span><span class="text-amber-600 dark:text-amber-400" id="grant-val-2">2 grants</span></div>
-                <div class="w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden"><div id="grant-bar-2" class="bg-amber-500 dark:bg-amber-400 h-full rounded-full chart-progress-transition" style="width: 17%"></div></div>
+
+              <!-- At Risk -->
+              <div class="space-y-1">
+                <div class="flex justify-between text-xs font-bold">
+                  <span class="text-slate-500" id="grant-status-2">At Risk</span>
+                  <span class="text-amber-600" id="grant-val-2">2 grants</span>
+                </div>
+                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                  <div id="grant-bar-2" class="bg-amber-500 h-full rounded-full chart-progress-transition" style="width: 17%"></div>
+                </div>
               </div>
-              <div class="space-y-1.5">
-                <div class="flex justify-between text-xs font-bold"><span class="text-slate-500 dark:text-slate-400" id="grant-status-3">Overdue</span><span class="text-rose-600 dark:text-rose-400" id="grant-val-3">1 grant</span></div>
-                <div class="w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden"><div id="grant-bar-3" class="bg-ippfred h-full rounded-full chart-progress-transition" style="width: 8%"></div></div>
+
+              <!-- Overdue -->
+              <div class="space-y-1">
+                <div class="flex justify-between text-xs font-bold">
+                  <span class="text-slate-500" id="grant-status-3">Overdue</span>
+                  <span class="text-rose-600" id="grant-val-3">1 grant</span>
+                </div>
+                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                  <div id="grant-bar-3" class="bg-[#E11B22] h-full rounded-full chart-progress-transition" style="width: 8%"></div>
+                </div>
               </div>
             </div>
           </div>
 
-          <div class="bg-white dark:bg-slate-800 border border-[#E6DFD5] dark:border-slate-700 p-4 lg:p-5 rounded-xl flex flex-col print-border">
-            <div class="flex-none border-b border-slate-100 dark:border-slate-700 pb-3 mb-4">
-              <h4 class="text-xs lg:text-sm font-extrabold text-slate-900 dark:text-white uppercase" id="col-3-heading">Data Quality Integrations</h4>
-              <p class="text-xs text-slate-400 dark:text-slate-500 mt-1" id="col-3-sub">Submitted statistics completeness score</p>
+          <!-- Data Quality Integrity -->
+          <div class="bg-white border border-[#E6DFD5] p-5 rounded-xl flex flex-col justify-between interactive-element">
+            <div class="border-b border-slate-100 pb-3 mb-4">
+              <h4 class="text-xs font-extrabold text-slate-900 uppercase" id="col-3-heading">Data Quality Integrations</h4>
+              <p class="text-[11px] text-slate-400 mt-0.5" id="col-3-sub">Submitted statistics completeness score</p>
             </div>
-            <div class="flex-1 flex flex-col justify-evenly min-h-0 space-y-3">
-              <div class="space-y-1.5">
-                <div class="flex justify-between text-xs font-bold"><span class="text-slate-500 dark:text-slate-400" id="quality-lbl-1">Service Statistics</span><span class="text-slate-800 dark:text-slate-200" id="quality-val-1">97%</span></div>
-                <div class="w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden"><div id="quality-bar-1" class="bg-[#0F6E63] dark:bg-emerald-500 h-full rounded-full chart-progress-transition" style="width: 97%"></div></div>
+            
+            <div class="space-y-3 my-1">
+              <!-- Service Statistics -->
+              <div class="space-y-1">
+                <div class="flex justify-between text-xs font-bold">
+                  <span class="text-slate-500" id="quality-lbl-1">Service Statistics</span>
+                  <span class="text-slate-800" id="quality-val-1">97%</span>
+                </div>
+                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                  <div id="quality-bar-1" class="bg-[#0F6E63] h-full rounded-full chart-progress-transition" style="width: 97%"></div>
+                </div>
               </div>
-              <div class="space-y-1.5">
-                <div class="flex justify-between text-xs font-bold"><span class="text-slate-500 dark:text-slate-400" id="quality-lbl-2">Financial Returns</span><span class="text-slate-800 dark:text-slate-200" id="quality-val-2">93%</span></div>
-                <div class="w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden"><div id="quality-bar-2" class="bg-[#0F6E63] dark:bg-emerald-500 h-full rounded-full chart-progress-transition" style="width: 93%"></div></div>
+
+              <!-- Financial returns -->
+              <div class="space-y-1">
+                <div class="flex justify-between text-xs font-bold">
+                  <span class="text-slate-500" id="quality-lbl-2">Financial Returns</span>
+                  <span class="text-slate-800" id="quality-val-2">93%</span>
+                </div>
+                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                  <div id="quality-bar-2" class="bg-[#0F6E63] h-full rounded-full chart-progress-transition" style="width: 93%"></div>
+                </div>
               </div>
-              <div class="space-y-1.5">
-                <div class="flex justify-between text-xs font-bold"><span class="text-slate-500 dark:text-slate-400" id="quality-lbl-3">Accreditation Fields</span><span class="text-slate-800 dark:text-slate-200" id="quality-val-3">88%</span></div>
-                <div class="w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden"><div id="quality-bar-3" class="bg-[#D98A2B] h-full rounded-full chart-progress-transition" style="width: 88%"></div></div>
+
+              <!-- Accreditation Alignment -->
+              <div class="space-y-1">
+                <div class="flex justify-between text-xs font-bold">
+                  <span class="text-slate-500" id="quality-lbl-3">Accreditation Fields</span>
+                  <span class="text-slate-800" id="quality-val-3">88%</span>
+                </div>
+                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                  <div id="quality-bar-3" class="bg-[#D98A2B] h-full rounded-full chart-progress-transition" style="width: 88%"></div>
+                </div>
               </div>
             </div>
           </div>
 
         </div>
+
+        <!-- Presentation Sandbox Features (Bottom Action Control Center) -->
+        <div class="bg-slate-50 p-4 rounded-xl border border-[#E6DFD5] flex flex-col md:flex-row items-center justify-between gap-5 text-xs select-none">
+          
+          <!-- Interactive Threshold Sandbox Slider -->
+          <div class="w-full md:w-3/5 flex flex-col sm:flex-row sm:items-center gap-3">
+            <div class="flex-shrink-0">
+              <span class="font-extrabold text-slate-800 uppercase text-[10px] block" id="sandbox-title">Adjust Reporting Goal Sandbox</span>
+              <span class="text-[11px] text-slate-400 block" id="sandbox-sub">Simulate target updates for board presentation</span>
+            </div>
+            <div class="flex-grow flex items-center gap-2.5 w-full">
+              <span class="font-bold text-slate-400">80%</span>
+              <input type="range" id="threshold-slider" min="80" max="98" value="95" oninput="handleThresholdChange(this.value)" 
+                     class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#E11B22] focus:outline-none">
+              <span class="font-bold text-[#E11B22] bg-rose-50 border border-rose-200 px-2 py-0.5 rounded" id="threshold-display">Goal: 95%</span>
+            </div>
+          </div>
+
+          <!-- Simulation Interactive Buttons -->
+          <div class="flex items-center gap-2.5 w-full md:w-auto justify-end">
+            <!-- Submit Mock Data -->
+            <button onclick="openFormModal()" class="px-3.5 py-2 rounded-lg border border-slate-200 bg-white text-slate-800 font-bold hover:bg-slate-100 transition-colors flex items-center gap-1.5 shadow-sm">
+              <span class="text-[#E11B22] font-black">&#x271A;</span>
+              <span id="btn-submit">Submit Returns</span>
+            </button>
+            
+            <!-- Export Custom PDF simulation -->
+            <button onclick="triggerPDFExport()" class="px-4 py-2 rounded-lg bg-[#E11B22] text-white font-bold hover:bg-rose-700 transition-colors flex items-center gap-1.5 shadow-sm">
+              <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+              <span id="btn-export">Export Dossier</span>
+            </button>
+          </div>
+
+        </div>
+
       </div>
 
       <!-- Footer Branding & Disclaimers -->
-      <div class="flex-none bg-slate-50 dark:bg-slate-800/90 px-6 py-4 border-t border-[#E6DFD5] dark:border-slate-700 text-xs text-slate-400 dark:text-slate-500 flex flex-col md:flex-row justify-between items-center print-border no-print gap-4">
-        <div class="flex items-center gap-4 w-full md:w-1/2 lg:w-2/3">
-          <div class="flex-shrink-0">
-             <span class="font-bold text-slate-800 dark:text-slate-300 uppercase" id="sandbox-title">Goal Simulator:</span>
-          </div>
-          <div class="flex-grow flex items-center gap-3 max-w-sm">
-            <span class="font-bold">80%</span>
-            <input type="range" id="threshold-slider" min="80" max="98" value="95" oninput="handleThresholdChange(this.value)" 
-                   class="w-full h-1.5 bg-slate-200 dark:bg-slate-600 rounded-lg appearance-none cursor-pointer accent-ippfred focus:outline-none">
-            <span class="font-bold text-ippfred dark:text-rose-400 bg-rose-50 dark:bg-rose-900/30 border border-rose-200 dark:border-rose-800/50 px-2 py-1 rounded" id="threshold-display">Goal: 95%</span>
-          </div>
+      <div class="bg-slate-50 px-5 lg:px-7 py-4 border-t border-[#E6DFD5] text-[11px] text-slate-400 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 leading-relaxed">
+        <div class="max-w-3xl">
+          <p><strong class="text-slate-500" id="foot-disclaim-title">Official Mockup Proposal Context:</strong> <span id="foot-disclaim-text">A possible Affiliate-facing view across IPPF's data domains (service delivery, financial, grants, governance) with role-based access and opt-in benchmarking. Final structure, indicators, metrics and access rules are to be identified and validated with stakeholders during the Needs Analysis (Part 1). All names and figures are fictional.</span></p>
         </div>
-        <div class="text-center md:text-right flex-shrink-0 w-full md:w-auto">
-          <p class="font-bold text-slate-600 dark:text-slate-300" id="foot-auth">Prepared by Mihir Soni</p>
-          <p id="foot-doc" class="text-[10px] md:text-xs">IPPF Affiliate Analytics &bull; Concept</p>
+        <div class="text-right flex-shrink-0">
+          <p class="font-extrabold text-slate-600" id="foot-auth">Prepared by Mihir Soni</p>
+          <p class="text-[10px]" id="foot-doc">IPPF Affiliate Analytics Initiative &bull; Custom Implementation Concept</p>
         </div>
       </div>
 
     </div>
+
   </div>
 
+  <!-- Interactive Sandbox Submission Form Modal -->
+  <div id="upload-modal" class="fixed inset-0 bg-[#1F1625]/85 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+    <div class="bg-white rounded-xl border border-slate-200 max-w-md w-full mx-4 shadow-2xl overflow-hidden transform scale-95 transition-all duration-300" id="upload-modal-container">
+      <div class="bg-[#1F1625] text-white p-5 relative">
+        <h3 class="text-base font-extrabold tracking-tight" id="modal-title">Transmit Secure Member Returns</h3>
+        <p class="text-xs text-slate-300 mt-1" id="modal-sub">Submit secure annual accreditation or quarterly CYP worksheets.</p>
+        <button onclick="closeFormModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white font-extrabold text-xl leading-none">&times;</button>
+      </div>
+      <div class="p-5 space-y-4 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 uppercase mb-1.5" id="modal-lbl-category">Select Data Category</label>
+          <select class="w-full bg-slate-50 border border-slate-200 rounded p-2 text-slate-900 font-semibold focus:ring-2 focus:ring-[#E11B22] outline-none">
+            <option id="modal-opt-1">Quarterly Service Protection Metrics (CYP)</option>
+            <option id="modal-opt-2">Annual Financial Audit returns</option>
+            <option id="modal-opt-3">Accreditation Standard Questionnaire</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 uppercase mb-1.5" id="modal-lbl-file">Select Data Document</label>
+          <div class="border-2 border-dashed border-slate-300 hover:border-[#E11B22] bg-slate-50 hover:bg-rose-50/10 p-5 rounded-lg text-center cursor-pointer transition-colors group">
+            <svg class="w-8 h-8 text-slate-300 mx-auto mb-2 group-hover:text-[#E11B22] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V4a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path>
+            </svg>
+            <span class="font-extrabold text-slate-700 block" id="modal-lbl-upload-text">Drop spreadsheet here or browse</span>
+            <span class="text-[10px] text-slate-400 block mt-1">Accepts CSV, XLSX or PDF. Complete with validation check.</span>
+          </div>
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button onclick="closeFormModal()" class="px-4 py-2 text-slate-600 font-bold hover:bg-slate-100 rounded transition-colors" id="modal-btn-cancel">Cancel</button>
+          <button onclick="simulateUpload()" class="px-4 py-2 bg-[#E11B22] hover:bg-rose-700 text-white font-bold rounded shadow-sm transition-colors" id="modal-btn-submit">Secure Upload</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive Feedback Toast -->
+  <div id="action-toast" class="fixed bottom-5 right-5 z-50 bg-[#1F1625] text-white px-5 py-3 rounded-lg border border-rose-950 shadow-2xl flex items-center gap-3 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+    <div class="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center text-[10px] text-white font-bold">&#x2713;</div>
+    <div class="text-xs font-bold" id="toast-msg">Document uploaded successfully.</div>
+  </div>
+
+  <!-- Smart Back Navigation -->
   <script>
+    function goBackToSourcePage(event) {
+      event.preventDefault();
+
+      const returnUrl = sessionStorage.getItem('ippfReturnUrl');
+      const currentUrl = window.location.href.split('#')[0];
+
+      if (returnUrl && returnUrl.split('#')[0] !== currentUrl) {
+        window.location.href = returnUrl;
+        return;
+      }
+
+      if (document.referrer && document.referrer.split('#')[0] !== currentUrl) {
+        window.location.href = document.referrer;
+        return;
+      }
+
+      if (window.history.length > 1) {
+        window.history.back();
+      }
+    }
+  </script>
+
+  <!-- Translation Matrix and Application Code -->
+  <script>
+    // Fictional dataset aligned with stakeholders concept feedback
     const mockupDataset = {
       countryA: {
         name: "Sample Member Association — \"Country A\"",
         region: "region1",
-        kpi1: "486,200", kpi1Trend: "▲ 8.4%", kpi1Positive: true,
-        kpi2: "82.3%", kpi2Spent: "USD 3.1M Deployed", kpi2Total: "of 3.8M",
-        kpi3: "147", kpi3Trend: "▲ +12",
-        kpi4: "91%", kpi4Trend: "▼ -3 pts", kpi4ValNum: 91,
-        chart1: { q1: { s1: 58, s2: 22 }, q2: { s1: 64, s2: 20 }, q3: { s1: 55, s2: 26 }, q4: { s1: 72, s2: 24 } },
+        kpi1: "486,200",
+        kpi1Trend: "▲ 8.4%",
+        kpi1Positive: true,
+        kpi2: "82.3%",
+        kpi2Spent: "USD 3.1M Deployed",
+        kpi2Total: "of 3.8M",
+        kpi3: "147",
+        kpi3Trend: "▲ +12",
+        kpi4: "91%",
+        kpi4Trend: "▼ -3 pts",
+        kpi4ValNum: 91,
+        // Chart values
+        chart1: {
+          q1: { s1: 58, s2: 22 },
+          q2: { s1: 64, s2: 20 },
+          q3: { s1: 55, s2: 26 },
+          q4: { s1: 72, s2: 24 }
+        },
         peers: { self: 82, peerA: 88, peerB: 79, peerC: 71, avg: 80 },
         donut: { total: "3.8M", s1: 62, s2: 22, s3: 16 },
         grants: { g1: 9, g1Pct: 75, g2: 2, g2Pct: 17, g3: 1, g3Pct: 8 },
@@ -508,11 +755,23 @@
       countryB: {
         name: "Sample Member Association — \"Country B\"",
         region: "region2",
-        kpi1: "1,240,500", kpi1Trend: "▲ 12.1%", kpi1Positive: true,
-        kpi2: "95.2%", kpi2Spent: "USD 8.1M Deployed", kpi2Total: "of 8.5M",
-        kpi3: "410", kpi3Trend: "▲ +32",
-        kpi4: "97%", kpi4Trend: "▲ +2 pts", kpi4ValNum: 97,
-        chart1: { q1: { s1: 60, s2: 25 }, q2: { s1: 68, s2: 22 }, q3: { s1: 58, s2: 28 }, q4: { s1: 75, s2: 21 } },
+        kpi1: "1,240,500",
+        kpi1Trend: "▲ 12.1%",
+        kpi1Positive: true,
+        kpi2: "95.2%",
+        kpi2Spent: "USD 8.1M Deployed",
+        kpi2Total: "of 8.5M",
+        kpi3: "410",
+        kpi3Trend: "▲ +32",
+        kpi4: "97%",
+        kpi4Trend: "▲ +2 pts",
+        kpi4ValNum: 97,
+        chart1: {
+          q1: { s1: 60, s2: 25 },
+          q2: { s1: 68, s2: 22 },
+          q3: { s1: 58, s2: 28 },
+          q4: { s1: 75, s2: 21 }
+        },
         peers: { self: 95, peerA: 92, peerB: 84, peerC: 80, avg: 88 },
         donut: { total: "8.5M", s1: 70, s2: 18, s3: 12 },
         grants: { g1: 18, g1Pct: 85, g2: 2, g2Pct: 10, g3: 1, g3Pct: 5 },
@@ -521,11 +780,23 @@
       countryC: {
         name: "Sample Member Association — \"Country C\"",
         region: "region3",
-        kpi1: "312,100", kpi1Trend: "▼ -2.4%", kpi1Positive: false,
-        kpi2: "74.8%", kpi2Spent: "USD 1.8M Deployed", kpi2Total: "of 2.4M",
-        kpi3: "88", kpi3Trend: "▼ -4",
-        kpi4: "86%", kpi4Trend: "▼ -9 pts", kpi4ValNum: 86,
-        chart1: { q1: { s1: 50, s2: 30 }, q2: { s1: 52, s2: 28 }, q3: { s1: 45, s2: 35 }, q4: { s1: 60, s2: 30 } },
+        kpi1: "312,100",
+        kpi1Trend: "▼ -2.4%",
+        kpi1Positive: false,
+        kpi2: "74.8%",
+        kpi2Spent: "USD 1.8M Deployed",
+        kpi2Total: "of 2.4M",
+        kpi3: "88",
+        kpi3Trend: "▼ -4",
+        kpi4: "86%",
+        kpi4Trend: "▼ -9 pts",
+        kpi4ValNum: 86,
+        chart1: {
+          q1: { s1: 50, s2: 30 },
+          q2: { s1: 52, s2: 28 },
+          q3: { s1: 45, s2: 35 },
+          q4: { s1: 60, s2: 30 }
+        },
         peers: { self: 75, peerA: 89, peerB: 81, peerC: 78, avg: 81 },
         donut: { total: "2.4M", s1: 55, s2: 25, s3: 20 },
         grants: { g1: 5, g1Pct: 62, g2: 2, g2Pct: 25, g3: 1, g3Pct: 13 },
@@ -534,11 +805,23 @@
       countryD: {
         name: "Sample Member Association — \"Country D\"",
         region: "region4",
-        kpi1: "645,800", kpi1Trend: "▲ 5.6%", kpi1Positive: true,
-        kpi2: "89.1%", kpi2Spent: "USD 4.1M Deployed", kpi2Total: "of 4.6M",
-        kpi3: "220", kpi3Trend: "▲ +18",
-        kpi4: "94%", kpi4Trend: "▲ +1 pt", kpi4ValNum: 94,
-        chart1: { q1: { s1: 56, s2: 24 }, q2: { s1: 60, s2: 25 }, q3: { s1: 52, s2: 30 }, q4: { s1: 68, s2: 26 } },
+        kpi1: "645,800",
+        kpi1Trend: "▲ 5.6%",
+        kpi1Positive: true,
+        kpi2: "89.1%",
+        kpi2Spent: "USD 4.1M Deployed",
+        kpi2Total: "of 4.6M",
+        kpi3: "220",
+        kpi3Trend: "▲ +18",
+        kpi4: "94%",
+        kpi4Trend: "▲ +1 pt",
+        kpi4ValNum: 94,
+        chart1: {
+          q1: { s1: 56, s2: 24 },
+          q2: { s1: 60, s2: 25 },
+          q3: { s1: 52, s2: 30 },
+          q4: { s1: 68, s2: 26 }
+        },
         peers: { self: 89, peerA: 91, peerB: 85, peerC: 82, avg: 87 },
         donut: { total: "4.6M", s1: 65, s2: 20, s3: 15 },
         grants: { g1: 12, g1Pct: 80, g2: 2, g2Pct: 13, g3: 1, g3Pct: 7 },
@@ -546,100 +829,299 @@
       }
     };
 
+    // Advanced Live Multi-lingual Translation Matrix (EN, FR, ES, AR)
     const localizationDict = {
       en: {
-        badgeView: "Member Association View", badgePhase: "Official Analytics Dashboard Mockup", title: "Affiliate Performance Dashboard",
-        dropAffiliate: "Select Affiliate", dropRegion: "Region", dropPeriod: "Period", dropLang: "Language",
-        kpi1: "Services Delivered (CYP)", kpi2: "Budget Utilisation", kpi3: "Active Service Points", kpi4: "Grant Reporting on Time",
-        kpi1sub: "vs prior year", kpi3sub: "new outlets globally", kpi4sub: "vs target",
-        chartHeading: "Service Delivery Trends", chartSub: "Couple-years of protection (CYP), split by category",
-        legContra: "Contraceptive services", legSrh: "SRH & counselling",
-        peerHeading: "Regional Benchmark", tagOpt: "Opt-In Active",
-        peerA: "Peer A (Anonymised)", peerSelf: "You (", peerB: "Peer B (Anonymised)", peerAvg: "Region Average",
-        col1Heading: "Funding Mix", col1Sub: "Proportional resource breakdown",
-        col2Heading: "Grant Delivery Health", col2Sub: "Active implementation pipeline status",
-        col3Heading: "Data Quality Integrations", col3Sub: "Submitted statistics completeness score",
-        donut1: "Core Unrestricted", donut2: "Restricted", donut3: "Locally Raised",
-        grant1: "On Track", grant2: "At Risk", grant3: "Overdue",
-        quality1: "Service Statistics", quality2: "Financial Returns", quality3: "Accreditation Fields",
-        sandboxTitle: "Goal Sandbox:", footAuth: "Prepared by Mihir Soni"
+        badgeView: "Member Association View",
+        badgePhase: "Needs Analysis Mockup",
+        title: "Affiliate Performance Dashboard",
+        dropAffiliate: "Select Affiliate",
+        dropRegion: "Region",
+        dropPeriod: "Period",
+        dropLang: "Language",
+        bannerTitle: "Illustrative Draft for Presentation:",
+        bannerText: "This design outlines structural suggestions for discussion. Access roles, specific compliance metrics, and opt-in rules will be completely defined during the stakeholder workshops in Part 1.",
+        kpi1: "Services Delivered (CYP)",
+        kpi2: "Budget Utilisation",
+        kpi3: "Active Service Points",
+        kpi4: "Grant Reporting on Time",
+        kpi1sub: "vs prior year",
+        kpi3sub: "new outlets globally",
+        kpi4sub: "vs target",
+        chartHeading: "Service Delivery Trends",
+        chartSub: "Couple-years of protection (CYP), split by category",
+        legContra: "Contraceptive services",
+        legSrh: "SRH & counselling",
+        peerHeading: "Regional Benchmark",
+        tagOpt: "Opt-In Active",
+        peerA: "Peer A (Anonymised)",
+        peerSelf: "You (",
+        peerB: "Peer B (Anonymised)",
+        peerAvg: "Region Average",
+        col1Heading: "Funding Mix",
+        col1Sub: "Proportional resource breakdown",
+        col2Heading: "Grant Delivery Health",
+        col2Sub: "Active implementation pipeline status",
+        col3Heading: "Data Quality Integrations",
+        col3Sub: "Submitted statistics completeness score",
+        donut1: "Core Unrestricted",
+        donut2: "Restricted",
+        donut3: "Locally Raised",
+        grant1: "On Track",
+        grant2: "At Risk",
+        grant3: "Overdue",
+        quality1: "Service Statistics",
+        quality2: "Financial Returns",
+        quality3: "Accreditation Fields",
+        sandboxTitle: "Adjust Reporting Goal Sandbox",
+        sandboxSub: "Simulate target updates for board presentation",
+        btnSubmit: "Submit Returns",
+        btnExport: "Export Dossier",
+        footTitle: "Official Mockup Proposal Context:",
+        footText: "A possible Affiliate-facing view across IPPF's data domains (service delivery, financial, grants, governance) with role-based access and opt-in benchmarking. Final structure, indicators, metrics and access rules are to be identified and validated with stakeholders during the Needs Analysis (Part 1). All names and figures are fictional.",
+        footAuth: "Prepared by Mihir Soni",
+        toastUpload: "Data returns transmitted securely to the IPPF database.",
+        toastExport: "Assembling performance dashboard metrics into PDF. Download starting...",
+        modalTitle: "Transmit Secure Member Returns",
+        modalSub: "Submit secure annual accreditation or quarterly CYP worksheets.",
+        modalCategory: "Select Data Category",
+        modalFile: "Select Data Document",
+        modalUploadText: "Drop spreadsheet here or browse",
+        modalBtnCancel: "Cancel",
+        modalBtnSubmit: "Secure Upload"
       },
       fr: {
-        badgeView: "Vue de l'Association Membre", badgePhase: "Tableau de Bord Officiel", title: "Portail d'Analyse de Performance",
-        dropAffiliate: "Sélectionner l'Affilié", dropRegion: "Région", dropPeriod: "Période", dropLang: "Langue",
-        kpi1: "Services Fournis (CYP)", kpi2: "Utilisation du Budget", kpi3: "Points de Service Actifs", kpi4: "Rapports de Subventions à Temps",
-        kpi1sub: "vs année précédente", kpi3sub: "nouveaux centres mondiaux", kpi4sub: "vs objectif",
-        chartHeading: "Tendances de Services", chartSub: "Années-couples de protection (CYP) par type",
-        legContra: "Services contraceptifs", legSrh: "SSR & conseils",
-        peerHeading: "Analyse Comparative", tagOpt: "Adhésion Active",
-        peerA: "Pair A (Anonymisé)", peerSelf: "Vous (", peerB: "Pair B (Anonymisé)", peerAvg: "Moyenne Régionale",
-        col1Heading: "Structure de Financement", col1Sub: "Répartition proportionnelle des fonds",
-        col2Heading: "Santé des Subventions", col2Sub: "Statut du pipeline de mise en œuvre",
-        col3Heading: "Qualité des Données", col3Sub: "Taux de complétude des statistiques",
-        donut1: "Fonds Propres Libres", donut2: "Subventions Affectées", donut3: "Généré Localement",
-        grant1: "Sur Rails", grant2: "Sous Risque", grant3: "En Retard",
-        quality1: "Statistiques de Services", quality2: "Rapports Financiers", quality3: "Champs d'Accréditation",
-        sandboxTitle: "Cible:", footAuth: "Préparé par Mihir Soni"
+        badgeView: "Vue de l'Association Membre",
+        badgePhase: "Maquette d'Analyse des Besoins",
+        title: "Portail d'Analyse de Performance",
+        dropAffiliate: "Sélectionner l'Affilié",
+        dropRegion: "Région",
+        dropPeriod: "Période",
+        dropLang: "Langue",
+        bannerTitle: "Version de Travail pour Discussion :",
+        bannerText: "Cette structure n'est qu'une proposition illustrative. Les accès, rôles et métriques spécifiques seront co-définis avec les parties prenantes lors de la phase d'analyse de la Partie 1.",
+        kpi1: "Services Fournis (CYP)",
+        kpi2: "Utilisation du Budget",
+        kpi3: "Points de Service Actifs",
+        kpi4: "Rapports de Subventions à Temps",
+        kpi1sub: "vs année précédente",
+        kpi3sub: "nouveaux centres mondiaux",
+        kpi4sub: "vs objectif",
+        chartHeading: "Tendances de Services",
+        chartSub: "Années-couples de protection (CYP) par type",
+        legContra: "Services contraceptifs",
+        legSrh: "SSR & conseils",
+        peerHeading: "Analyse Comparative",
+        tagOpt: "Adhésion Active",
+        peerA: "Pair A (Anonymisé)",
+        peerSelf: "Vous (",
+        peerB: "Pair B (Anonymisé)",
+        peerAvg: "Moyenne Régionale",
+        col1Heading: "Structure de Financement",
+        col1Sub: "Répartition proportionnelle des fonds",
+        col2Heading: "Santé des Subventions",
+        col2Sub: "Statut du pipeline de mise en œuvre",
+        col3Heading: "Qualité des Données",
+        col3Sub: "Taux de complétude des statistiques",
+        donut1: "Fonds Propres Libres",
+        donut2: "Subventions Affectées",
+        donut3: "Généré Localement",
+        grant1: "Sur Rails",
+        grant2: "Sous Risque",
+        grant3: "En Retard",
+        quality1: "Statistiques de Services",
+        quality2: "Rapports Financiers",
+        quality3: "Champs d'Accréditation",
+        sandboxTitle: "Modifier l'Objectif de Cible",
+        sandboxSub: "Simulez de nouveaux objectifs pour le conseil",
+        btnSubmit: "Transmettre Données",
+        btnExport: "Exporter le Dossier",
+        footTitle: "Contexte de la Proposition Illustrative :",
+        footText: "Aperçu potentiel des domaines de données d'IPPF. La structure définitive, indicateurs et règles de gouvernance seront entièrement construits avec les parties prenantes en Partie 1. Données fictives.",
+        footAuth: "Préparé par Mihir Soni",
+        toastUpload: "Données transmises avec succès à l'entrepôt IPPF.",
+        toastExport: "Génération du dossier PDF en cours. Téléchargement imminent...",
+        modalTitle: "Transmettre les rapports d'activité",
+        modalSub: "Déposez vos feuilles de calcul de conformité annuelles ou trimestrielles.",
+        modalCategory: "Sélectionnez la catégorie",
+        modalFile: "Document à joindre",
+        modalUploadText: "Glissez votre document ou cliquez ici",
+        modalBtnCancel: "Annuler",
+        modalBtnSubmit: "Soumettre"
       },
       es: {
-        badgeView: "Vista de la Asociación Miembro", badgePhase: "Panel Analítico Oficial", title: "Panel de Desempeño de Afiliadas",
-        dropAffiliate: "Seleccionar Afiliada", dropRegion: "Región", dropPeriod: "Período", dropLang: "Idioma",
-        kpi1: "Servicios Entregados (CYP)", kpi2: "Utilización de Presupuesto", kpi3: "Puntos de Servicio Activos", kpi4: "Informes de Subvenciones a Tiempo",
-        kpi1sub: "vs año anterior", kpi3sub: "puntos globales", kpi4sub: "vs meta de",
-        chartHeading: "Tendencias de Servicios", chartSub: "Años-pareja de protección (CYP) por categoría",
-        legContra: "Servicios anticonceptivos", legSrh: "SDSR y consejería",
-        peerHeading: "Comparativa Regional", tagOpt: "Suscripción Activa",
-        peerA: "Par A (Anónimo)", peerSelf: "Usted (", peerB: "Par B (Anónimo)", peerAvg: "Promedio Regional",
-        col1Heading: "Mezcla de Financiamiento", col1Sub: "Desglose proporcional de recursos",
-        col2Heading: "Salud de Subvenciones", col2Sub: "Estado de entrega y proyectos",
-        col3Heading: "Calidad de Datos", col3Sub: "Índice de completitud de estadísticas",
-        donut1: "Fondo General Libre", donut2: "Subvenciones Restringidas", donut3: "Generación Local",
-        grant1: "Al Día", grant2: "En Riesgo", grant3: "Retrasado",
-        quality1: "Estadísticas de Servicio", quality2: "Estados Financieros", quality3: "Campos de Acreditación",
-        sandboxTitle: "Meta Sandbox:", footAuth: "Preparado por Mihir Soni"
+        badgeView: "Vista de la Asociación Miembro",
+        badgePhase: "Borrador de Análisis de Necesidades",
+        title: "Panel de Desempeño de Afiliadas",
+        dropAffiliate: "Seleccionar Afiliada",
+        dropRegion: "Región",
+        dropPeriod: "Período",
+        dropLang: "Idioma",
+        bannerTitle: "Borrador Ilustrativo para Discusión:",
+        bannerText: "Este diseño propone sugerencias estructurales para el debate. Los roles de acceso y métricas exactas serán completamente definidos en los talleres con las partes interesadas en la Parte 1.",
+        kpi1: "Servicios Entregados (CYP)",
+        kpi2: "Utilización de Presupuesto",
+        kpi3: "Puntos de Servicio Activos",
+        kpi4: "Informes de Subvenciones a Tiempo",
+        kpi1sub: "vs año anterior",
+        kpi3sub: "puntos de servicio globales",
+        kpi4sub: "vs meta de",
+        chartHeading: "Tendencias de Servicios",
+        chartSub: "Años-pareja de protección (CYP) por categoría",
+        legContra: "Servicios anticonceptivos",
+        legSrh: "SDSR y consejería",
+        peerHeading: "Comparativa Regional",
+        tagOpt: "Suscripción Activa",
+        peerA: "Par A (Anónimo)",
+        peerSelf: "Usted (",
+        peerB: "Par B (Anónimo)",
+        peerAvg: "Promedio Regional",
+        col1Heading: "Mezcla de Financiamiento",
+        col1Sub: "Desglose proporcional de recursos",
+        col2Heading: "Salud de Subvenciones",
+        col2Sub: "Estado de entrega y entrega de proyectos",
+        col3Heading: "Calidad de Datos",
+        col3Sub: "Índice de completitud de estadísticas",
+        donut1: "Fondo General Libre",
+        donut2: "Subvenciones Restringidas",
+        donut3: "Generación Local",
+        grant1: "Al Día",
+        grant2: "En Riesgo",
+        grant3: "Retrasado",
+        quality1: "Estadísticas de Servicio",
+        quality2: "Estados Financieros",
+        quality3: "Campos de Acreditación",
+        sandboxTitle: "Ajustar Meta en Sandbox",
+        sandboxSub: "Simular cambios para presentaciones del comité",
+        btnSubmit: "Presentar Datos",
+        btnExport: "Exportar Expediente",
+        footTitle: "Contexto de la Maqueta Propuesta:",
+        footText: "Propuesta de panel de datos generales. La estructura final, indicadores, métricas y reglas serán identificados y validados con los actores clave durante el Análisis (Parte 1). Cifras ficticias.",
+        footAuth: "Preparado por Mihir Soni",
+        toastUpload: "Datos transmitidos de manera segura a la base de datos central.",
+        toastExport: "Generando el expediente PDF consolidado. Descarga iniciada...",
+        modalTitle: "Transmitir Datos de Actividad",
+        modalSub: "Presente de forma segura sus informes financieros o planillas de servicios.",
+        modalCategory: "Seleccione categoría",
+        modalFile: "Seleccione archivo",
+        modalUploadText: "Suelte su planilla aquí o busque un archivo",
+        modalBtnCancel: "Cancelar",
+        modalBtnSubmit: "Transmitir"
       },
       ar: {
-        badgeView: "عرض الجمعية العضو", badgePhase: "لوحة التحليلات الرسمية", title: "لوحة تحليلات أداء الجمعيات الأعضاء",
-        dropAffiliate: "اختر الجمعية العضو", dropRegion: "المنطقة", dropPeriod: "الفترة", dropLang: "اللغة",
-        kpi1: "الخدمات المقدمة (CYP)", kpi2: "معدل استهلاك الميزانية", kpi3: "نقاط الخدمة النشطة", kpi4: "تقديم تقارير المنح في الوقت المحدد",
-        kpi1sub: "مقارنة بالعام السابق", kpi3sub: "منافذ خدمة جديدة عالمياً", kpi4sub: "مقارنة بالهدف البالغ",
-        chartHeading: "اتجاهات تقديم الخدمات", chartSub: "سنوات الحماية الزوجية (CYP) مصنفة حسب الفئة",
-        legContra: "خدمات تنظيم الأسرة", legSrh: "الصحة الإنجابية والاستشارات",
-        peerHeading: "المقارنة المعيارية الإقليمية", tagOpt: "مشاركة نشطة",
-        peerA: "الجمعية الشريكة أ (مجهول)", peerSelf: "أنت (", peerB: "الجمعية الشريكة ب (مجهول)", peerAvg: "المعدل الإقليمي",
-        col1Heading: "مصادر التمويل", col1Sub: "التقسيم النسبي لموارد الميزانية",
-        col2Heading: "مؤشر صحة المنح", col2Sub: "موقف الالتزام بالاتفاقيات وتوقيتات التسليم",
-        col3Heading: "جودة واكتمال البيانات", col3Sub: "معدل اكتمال حقول التقارير الإحصائية",
-        donut1: "موارد عامة غير مشروطة", donut2: "منح مقيدة وموجهة", donut3: "تمويل محلي ذاتي",
-        grant1: "في المسار الصحيح", grant2: "تحت مخاطر التأخير", grant3: "متأخر ومستحق",
-        quality1: "الإحصاءات الخدمية", quality2: "التقارير المالية والتدقيق", quality3: "حقول متطلبات الاعتماد",
-        sandboxTitle: "الهدف:", footAuth: "إعداد: ميهير سوني"
+        badgeView: "عرض الجمعية العضو",
+        badgePhase: "نموذج تحليل الاحتياجات",
+        title: "لوحة تحليلات أداء الجمعيات الأعضاء",
+        dropAffiliate: "اختر الجمعية العضو",
+        dropRegion: "المنطقة",
+        dropPeriod: "الفترة",
+        dropLang: "اللغة",
+        bannerTitle: "مسودة توضيحية للمناقشة فقط:",
+        bannerText: "يقدم هذا التصميم مقترحات هيكلية للنقاش. سيتم تحديد أدوار الصلاحيات والمؤشرات ومعدلات الالتزام بشكل كامل بالتعاون مع الشركاء خلال ورش العمل في الجزء الأول.",
+        kpi1: "الخدمات المقدمة (CYP)",
+        kpi2: "معدل استهلاك الميزانية",
+        kpi3: "نقاط الخدمة النشطة",
+        kpi4: "تقديم تقارير المنح في الوقت المحدد",
+        kpi1sub: "مقارنة بالعام السابق",
+        kpi3sub: "منافذ خدمة جديدة عالمياً",
+        kpi4sub: "مقارنة بالهدف البالغ",
+        chartHeading: "اتجاهات تقديم الخدمات",
+        chartSub: "سنوات الحماية الزوجية (CYP) مصنفة حسب الفئة",
+        legContra: "خدمات تنظيم الأسرة",
+        legSrh: "الصحة الإنجابية والاستشارات",
+        peerHeading: "المقارنة المعيارية الإقليمية",
+        tagOpt: "مشاركة نشطة",
+        peerA: "الجمعية الشريكة أ (مجهول)",
+        peerSelf: "أنت (",
+        peerB: "الجمعية الشريكة ب (مجهول)",
+        peerAvg: "المعدل الإقليمي",
+        col1Heading: "مصادر التمويل",
+        col1Sub: "التقسيم النسبي لموارد الميزانية",
+        col2Heading: "مؤشر صحة المنح",
+        col2Sub: "موقف الالتزام بالاتفاقيات وتوقيتات التسليم",
+        col3Heading: "جودة واكتمال البيانات",
+        col3Sub: "معدل اكتمال حقول التقارير الإحصائية",
+        donut1: "موارد عامة غير مشروطة",
+        donut2: "منح مقيدة وموجهة",
+        donut3: "تمويل محلي ذاتي",
+        grant1: "في المسار الصحيح",
+        grant2: "تحت مخاطر التأخير",
+        grant3: "متأخر ومستحق",
+        quality1: "الإحصاءات الخدمية",
+        quality2: "التقارير المالية والتدقيق",
+        quality3: "حقول متطلبات الاعتماد",
+        sandboxTitle: "أداة تعديل قيم التوافق المستهدفة",
+        sandboxSub: "محاكاة تغيير الأهداف لتقديمها إلى الإدارة والاتحاد",
+        btnSubmit: "تقديم البيانات",
+        btnExport: "تصدير الملف المدمج",
+        footTitle: "سياق المسودة المقترحة للتصميم :",
+        footText: "رؤية مقترحة لعرض مجالات بيانات الاتحاد الدولي لتنظيم الأسرة. سيتم الاتفاق على الهيكل النهائي والمؤشرات والقواعد وتأكيدها بشكل كامل مع الأطراف المعنية أثناء الجزء الأول من تحليل الاحتياجات. جميع الأرقام والأسماء افتراضية.",
+        footAuth: "إعداد: ميهير سوني",
+        toastUpload: "تم إرسال البيانات بشكل آمن إلى قواعد بيانات الاتحاد الدولي لتنظيم الأسرة.",
+        toastExport: "يجري الآن إعداد ملف PDF المدمج للتحميل...",
+        modalTitle: "إرسال تقارير النشاط للجمعيات الشريكة",
+        modalSub: "قم بتقديم استبيانات الاعتماد السنوية أو إحصاءات الحماية بشكل آمن.",
+        modalCategory: "اختر فئة البيانات",
+        modalFile: "اختر الملف المرفق",
+        modalUploadText: "اسحب ملف التقرير هنا أو اضغط للاستعراض",
+        modalBtnCancel: "إلغاء",
+        modalBtnSubmit: "إرسال التقرير"
       }
     };
 
     let currentLanguage = 'en';
+    let currentMode = 'pbi';
     let currentTargetGoal = 95;
 
-    function toggleDarkMode() {
-      document.documentElement.classList.toggle('dark');
+    // Changes layout between custom dashboard layout and Power BI Embedded desktop workspace style
+    function setMode(mode) {
+      currentMode = mode;
+      
+      const portalBtn = document.getElementById("btn-mode-portal");
+      const pbiBtn = document.getElementById("btn-mode-pbi");
+      const pbiChrome = document.getElementById("pbi-chrome");
+      const dashboardContainerCard = document.getElementById("dashboard-container-card");
+      
+      if (mode === 'pbi') {
+        portalBtn.className = "px-3 py-1 rounded font-bold transition-all text-slate-400 hover:text-white";
+        pbiBtn.className = "px-3 py-1 rounded font-bold transition-all bg-amber-500 text-slate-950 flex items-center gap-1.5";
+        pbiChrome.classList.remove("hidden");
+        pbiChrome.classList.add("flex");
+        // Styled borders representing inside power bi frame
+        dashboardContainerCard.className = "bg-white rounded-xl border-2 border-slate-300 shadow-2xl overflow-hidden flex flex-col pbi-frame transition-all duration-300";
+      } else {
+        portalBtn.className = "px-3 py-1 rounded font-bold transition-all bg-rose-600 text-white";
+        pbiBtn.className = "px-3 py-1 rounded font-bold transition-all text-slate-400 hover:text-white flex items-center gap-1.5";
+        pbiChrome.classList.remove("flex");
+        pbiChrome.classList.add("hidden");
+        dashboardContainerCard.className = "bg-white rounded-xl border border-[#E6DFD5] shadow-lg overflow-hidden flex flex-col transition-all duration-300";
+      }
       updateDashboard();
     }
 
+    // Swaps visual language elements instantly and checks right-to-left orientation for Arabic
     function setLang(langCode) {
       currentLanguage = langCode;
       
+      // Update toggle buttons active class
       ['en', 'fr', 'es', 'ar'].forEach(code => {
         const btn = document.getElementById(`btn-${code}`);
         if (code === langCode) {
-          btn.className = "px-2 py-1 font-extrabold text-[10px] rounded transition-all bg-white dark:bg-slate-600 text-slate-900 dark:text-white shadow-sm";
+          btn.className = "px-2 py-1 font-extrabold text-[10px] rounded transition-all bg-white text-slate-900 shadow-sm";
         } else {
-          btn.className = "px-2 py-1 font-extrabold text-[10px] rounded transition-all text-slate-600 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white";
+          btn.className = "px-2 py-1 font-extrabold text-[10px] rounded transition-all text-slate-400 hover:text-white";
         }
       });
 
+      // Handle Right-to-Left alignment for Arabic
       const wrapper = document.getElementById("main-frame-wrapper");
-      wrapper.dir = langCode === 'ar' ? "rtl" : "ltr";
+      if (langCode === 'ar') {
+        wrapper.dir = "rtl";
+      } else {
+        wrapper.dir = "ltr";
+      }
 
+      // Populate text strings from localization dict
       const dict = localizationDict[langCode];
       
       document.getElementById("badge-view").innerText = dict.badgeView;
@@ -649,6 +1131,9 @@
       document.getElementById("drop-lbl-region").innerText = dict.dropRegion;
       document.getElementById("drop-lbl-period").innerText = dict.dropPeriod;
       document.getElementById("drop-lbl-lang").innerText = dict.dropLang;
+
+      document.getElementById("banner-title").innerText = dict.bannerTitle;
+      document.getElementById("banner-text").innerText = dict.bannerText;
 
       document.getElementById("kpi-1-label").innerText = dict.kpi1;
       document.getElementById("kpi-2-label").innerText = dict.kpi2;
@@ -686,58 +1171,88 @@
       document.getElementById("quality-lbl-3").innerText = dict.quality3;
 
       document.getElementById("sandbox-title").innerText = dict.sandboxTitle;
+      document.getElementById("sandbox-sub").innerText = dict.sandboxSub;
+
+      document.getElementById("btn-submit").innerText = dict.btnSubmit;
+      document.getElementById("btn-export").innerText = dict.btnExport;
+
+      document.getElementById("foot-disclaim-title").innerText = dict.footTitle;
+      document.getElementById("foot-disclaim-text").innerText = dict.footText;
       document.getElementById("foot-auth").innerText = dict.footAuth;
 
+      // Modal Elements Localization
+      document.getElementById("modal-title").innerText = dict.modalTitle;
+      document.getElementById("modal-sub").innerText = dict.modalSub;
+      document.getElementById("modal-lbl-category").innerText = dict.modalCategory;
+      document.getElementById("modal-lbl-file").innerText = dict.modalFile;
+      document.getElementById("modal-lbl-upload-text").innerText = dict.modalUploadText;
+      document.getElementById("modal-btn-cancel").innerText = dict.modalBtnCancel;
+      document.getElementById("modal-btn-submit").innerText = dict.modalBtnSubmit;
+
+      // Refresh dynamic values
       updateDashboard();
     }
 
+    // Handles the live change of Slider threshold and updates color indicator of compliance KPI
     function handleThresholdChange(value) {
       currentTargetGoal = parseInt(value);
+      const displayLabel = document.getElementById("threshold-display");
+      
       const dictGoal = currentLanguage === 'ar' ? "الهدف" : (currentLanguage === 'fr' ? "Objectif" : (currentLanguage === 'es' ? "Meta" : "Goal"));
-      document.getElementById("threshold-display").innerText = `${dictGoal}: ${currentTargetGoal}%`;
+      displayLabel.innerText = `${dictGoal}: ${currentTargetGoal}%`;
+
       updateDashboard();
     }
 
+    // Transitions all metrics and graphs based on selected Affiliate and Year
     function updateDashboard() {
       const affiliateKey = document.getElementById("affiliate-picker").value;
       const data = mockupDataset[affiliateKey];
       if (!data) return;
 
+      // Sync Region
       document.getElementById("region-picker").value = data.region;
 
+      // Check current threshold sandbox compared to current reporting rate
       const kpi4Card = document.getElementById("kpi-4-card");
       const kpi4ValueText = document.getElementById("kpi-4-value");
       const kpi4TrendText = document.getElementById("kpi-4-trend");
       const kpi4SubText = document.getElementById("kpi-4-sub");
 
+      // Set baseline target text from translation dictionary
       const targetText = currentLanguage === 'ar' ? "مقارنة بالهدف" : (currentLanguage === 'fr' ? "vs objectif" : (currentLanguage === 'es' ? "vs meta de" : "vs target"));
       kpi4SubText.innerText = `${targetText} ${currentTargetGoal}%`;
 
+      // Update KPI 4 layout colors based on compliance calculation
       if (data.kpi4ValNum >= currentTargetGoal) {
-        kpi4Card.className = "bg-[#EEFAF4] dark:bg-emerald-900/10 border-emerald-300 dark:border-emerald-800/40 p-4 lg:p-5 rounded-xl flex flex-col justify-between interactive-element relative overflow-hidden transition-all duration-300 print-border";
-        kpi4ValueText.className = "text-3xl font-black text-[#0F6E63] dark:text-emerald-400 tracking-tight block mt-1";
-        kpi4TrendText.className = "font-bold text-[#0F6E63] dark:text-emerald-400";
+        // High Compliance (Green)
+        kpi4Card.className = "bg-[#EEFAF4] border-emerald-300 p-4 rounded-xl flex flex-col justify-between interactive-element relative overflow-hidden transition-all duration-300";
+        kpi4ValueText.className = "text-2xl font-black text-[#0F6E63] tracking-tight block mt-1.5";
+        kpi4TrendText.className = "font-bold text-[#0F6E63]";
         kpi4TrendText.innerHTML = "&#9650; Active Goal Met";
       } else if (data.kpi4ValNum >= currentTargetGoal - 5) {
-        kpi4Card.className = "bg-[#FFF9EE] dark:bg-amber-900/10 border-amber-300 dark:border-amber-800/40 p-4 lg:p-5 rounded-xl flex flex-col justify-between interactive-element relative overflow-hidden transition-all duration-300 print-border";
-        kpi4ValueText.className = "text-3xl font-black text-amber-600 dark:text-amber-400 tracking-tight block mt-1";
-        kpi4TrendText.className = "font-bold text-amber-600 dark:text-amber-400";
+        // Warning (Amber)
+        kpi4Card.className = "bg-[#FFF9EE] border-amber-300 p-4 rounded-xl flex flex-col justify-between interactive-element relative overflow-hidden transition-all duration-300";
+        kpi4ValueText.className = "text-2xl font-black text-amber-600 tracking-tight block mt-1.5";
+        kpi4TrendText.className = "font-bold text-amber-600";
         kpi4TrendText.innerHTML = "&#9660; Warning Review";
       } else {
-        kpi4Card.className = "bg-rose-50 dark:bg-rose-900/10 border-rose-300 dark:border-rose-800/40 p-4 lg:p-5 rounded-xl flex flex-col justify-between interactive-element relative overflow-hidden transition-all duration-300 print-border";
-        kpi4ValueText.className = "text-3xl font-black text-[#E11B22] dark:text-rose-400 tracking-tight block mt-1";
-        kpi4TrendText.className = "font-bold text-[#E11B22] dark:text-rose-400";
+        // Action Required (Red)
+        kpi4Card.className = "bg-rose-50 border-rose-300 p-4 rounded-xl flex flex-col justify-between interactive-element relative overflow-hidden transition-all duration-300";
+        kpi4ValueText.className = "text-2xl font-black text-[#E11B22] tracking-tight block mt-1.5";
+        kpi4TrendText.className = "font-bold text-[#E11B22]";
         kpi4TrendText.innerHTML = "&#9660; Remedial Action Required";
       }
 
+      // Update static KPI metric text
       document.getElementById("kpi-1-value").innerText = data.kpi1;
-      const kpi1TrendSpan = document.getElementById("kpi-1-trend");
-      kpi1TrendSpan.innerHTML = data.kpi1Positive ? `<span>&#9650;</span> ${data.kpi1Trend.split(' ')[1]}` : `<span>&#9660;</span> ${data.kpi1Trend.split(' ')[1]}`;
+      document.getElementById("kpi-1-trend").innerHTML = data.kpi1Positive ? `<span>&#9650;</span> ${data.kpi1Trend.split(' ')[1]}` : `<span>&#9660;</span> ${data.kpi1Trend.split(' ')[1]}`;
       
+      const kpi1TrendSpan = document.getElementById("kpi-1-trend");
       if (data.kpi1Positive) {
-        kpi1TrendSpan.className = "font-bold text-[#0F6E63] dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/50 px-1.5 py-0.5 rounded flex items-center";
+        kpi1TrendSpan.className = "font-bold text-[#0F6E63] bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded flex items-center gap-0.5";
       } else {
-        kpi1TrendSpan.className = "font-bold text-ippfred dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-800/50 px-1.5 py-0.5 rounded flex items-center";
+        kpi1TrendSpan.className = "font-bold text-[#E11B22] bg-rose-50 border border-rose-100 px-1.5 py-0.5 rounded flex items-center gap-0.5";
       }
 
       document.getElementById("kpi-2-value").innerText = data.kpi2;
@@ -750,18 +1265,28 @@
 
       document.getElementById("kpi-4-value").innerText = data.kpi4;
 
+      // Update Q1-Q4 Bar Height proportions dynamically
       document.getElementById("bar-q1-seg1").style.height = `${data.chart1.q1.s1}%`;
       document.getElementById("bar-q1-seg2").style.height = `${data.chart1.q1.s2}%`;
-      
+      document.getElementById("tip-q1-seg1").innerText = `Contra: ${data.chart1.q1.s1}%`;
+      document.getElementById("tip-q1-seg2").innerText = `SRH: ${data.chart1.q1.s2}%`;
+
       document.getElementById("bar-q2-seg1").style.height = `${data.chart1.q2.s1}%`;
       document.getElementById("bar-q2-seg2").style.height = `${data.chart1.q2.s2}%`;
-      
+      document.getElementById("tip-q2-seg1").innerText = `Contra: ${data.chart1.q2.s1}%`;
+      document.getElementById("tip-q2-seg2").innerText = `SRH: ${data.chart1.q2.s2}%`;
+
       document.getElementById("bar-q3-seg1").style.height = `${data.chart1.q3.s1}%`;
       document.getElementById("bar-q3-seg2").style.height = `${data.chart1.q3.s2}%`;
-      
+      document.getElementById("tip-q3-seg1").innerText = `Contra: ${data.chart1.q3.s1}%`;
+      document.getElementById("tip-q3-seg2").innerText = `SRH: ${data.chart1.q3.s2}%`;
+
       document.getElementById("bar-q4-seg1").style.height = `${data.chart1.q4.s1}%`;
       document.getElementById("bar-q4-seg2").style.height = `${data.chart1.q4.s2}%`;
+      document.getElementById("tip-q4-seg1").innerText = `Contra: ${data.chart1.q4.s1}%`;
+      document.getElementById("tip-q4-seg2").innerText = `SRH: ${data.chart1.q4.s2}%`;
 
+      // Update Peer charts
       document.getElementById("peer-a-val").innerText = `${data.peers.peerA}%`;
       document.getElementById("peer-a-bar").style.width = `${data.peers.peerA}%`;
 
@@ -777,6 +1302,7 @@
       document.getElementById("peer-avg-val").innerText = `${data.peers.avg}%`;
       document.getElementById("peer-avg-bar").style.width = `${data.peers.avg}%`;
 
+      // Update Donut Segments using SVG Stroke-DashArray
       const donutData = data.donut;
       document.getElementById("donut-total").innerText = donutData.total;
       
@@ -790,11 +1316,13 @@
       document.getElementById("donut-segment-3").setAttribute("stroke-dasharray", `${s3} ${100 - s3}`);
       document.getElementById("donut-segment-3").setAttribute("stroke-dashoffset", `-${s1 + s2}`);
 
+      // Donut Legend Labels
       const donutLabels = localizationDict[currentLanguage];
       document.getElementById("donut-lbl-1").innerText = `${donutLabels.donut1}: ${s1}%`;
       document.getElementById("donut-lbl-2").innerText = `${donutLabels.donut2}: ${s2}%`;
       document.getElementById("donut-lbl-3").innerText = `${donutLabels.donut3}: ${s3}%`;
 
+      // Grant Health bars
       document.getElementById("grant-val-1").innerText = `${data.grants.g1} ${currentLanguage === 'ar' ? 'منح نشطة' : (currentLanguage === 'fr' ? 'subventions' : 'grants')}`;
       document.getElementById("grant-bar-1").style.width = `${data.grants.g1Pct}%`;
       
@@ -804,6 +1332,7 @@
       document.getElementById("grant-val-3").innerText = `${data.grants.g3} ${currentLanguage === 'ar' ? 'متأخرة' : (currentLanguage === 'fr' ? 'subvention' : 'grant')}`;
       document.getElementById("grant-bar-3").style.width = `${data.grants.g3Pct}%`;
 
+      // Data Quality coverage
       document.getElementById("quality-val-1").innerText = `${data.quality.q1}%`;
       document.getElementById("quality-bar-1").style.width = `${data.quality.q1}%`;
       
@@ -813,10 +1342,57 @@
       document.getElementById("quality-val-3").innerText = `${data.quality.q3}%`;
       document.getElementById("quality-bar-3").style.width = `${data.quality.q3}%`;
 
-      document.getElementById("pbi-active-lbl").innerText = `${currentSelectedName} workspace embedded`;
+      // Synchronize Power BI Top Embed Chrome Workspace Label
+      if (currentMode === 'pbi') {
+        document.getElementById("pbi-active-lbl").innerText = `${currentSelectedName} workspace embedded`;
+      }
     }
 
+    // Modal Control Functions
+    function openFormModal() {
+      const modal = document.getElementById("upload-modal");
+      const container = document.getElementById("upload-modal-container");
+      modal.classList.remove("hidden");
+      setTimeout(() => {
+        modal.classList.remove("opacity-0");
+        container.classList.remove("scale-95");
+      }, 20);
+    }
+
+    function closeFormModal() {
+      const modal = document.getElementById("upload-modal");
+      const container = document.getElementById("upload-modal-container");
+      modal.classList.add("opacity-0");
+      container.classList.add("scale-95");
+      setTimeout(() => {
+        modal.classList.add("hidden");
+      }, 200);
+    }
+
+    // Simulated feedback alerts for board review
+    function triggerToast(message) {
+      const toast = document.getElementById("action-toast");
+      document.getElementById("toast-msg").innerText = message;
+      toast.classList.remove("translate-y-20", "opacity-0");
+      setTimeout(() => {
+        toast.classList.add("translate-y-20", "opacity-0");
+      }, 4000);
+    }
+
+    function simulateUpload() {
+      closeFormModal();
+      setTimeout(() => {
+        triggerToast(localizationDict[currentLanguage].toastUpload);
+      }, 350);
+    }
+
+    function triggerPDFExport() {
+      triggerToast(localizationDict[currentLanguage].toastExport);
+    }
+
+    // Bootstrap app once viewport load is complete
     window.onload = function() {
+      setMode('pbi');
       updateDashboard();
     };
   </script>
