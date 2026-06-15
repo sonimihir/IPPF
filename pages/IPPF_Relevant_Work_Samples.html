@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/x-icon" href="../assets/favicon.ico">
+  <title>Relevant Work Samples - IPPF Proposal</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Google Fonts: Plus Jakarta Sans (matching the mockup style) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+  
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, system-ui, sans-serif;
+    }
+    :root {
+      --ippf-red: #E31837;
+    }
+    .text-ippf-red { color: var(--ippf-red); }
+    .bg-ippf-red { background-color: var(--ippf-red); }
+
+    /* Scroll Progress Button SVG */
+    .progress-ring__circle {
+      transition: stroke-dashoffset 0.1s;
+      transform: rotate(-90deg);
+      transform-origin: 50% 50%;
+    }
+
+    
+    @media print {
+      body { background-color: white !important; }
+      * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      .no-print { display: none !important; }
+      .print-shadow-none { box-shadow: none !important; border: 1px solid #e2e8f0; }
+      .page-break-avoid { page-break-inside: avoid; break-inside: avoid; }
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-800 selection:bg-red-50 selection:text-red-900 pb-20">
+
+  <!-- Navigation Bar (No Print) -->
+  <div class="w-full bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm no-print">
+    <div class="max-w-6xl mx-auto px-4 lg:px-8 py-4 flex items-center justify-between">
+      <a href="javascript:history.back()" class="flex items-center gap-2 text-slate-600 hover:text-[#E31837] transition-colors font-bold text-sm bg-slate-50 hover:bg-red-50 px-3 py-2 rounded-lg border border-slate-200 hover:border-red-200">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        Go back to Proposal
+      </a>
+      
+      <!-- <button onclick="window.print()" class="flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors font-bold text-sm bg-slate-50 hover:bg-slate-100 px-3 py-2 rounded-lg border border-slate-200">
+        <i data-lucide="printer" class="w-4 h-4"></i>
+        <span class="hidden sm:inline">Save as PDF</span>
+      </button> -->
+    </div>
+  </div>
+
+  <!-- Scroll Progress "Back to Top" Button -->
+  <button 
+    id="backToTopBtn" 
+    onclick="scrollToTop()" 
+    title="Back to Top"
+    class="fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 rounded-full bg-white shadow-xl border border-slate-100 cursor-pointer opacity-0 translate-y-10 pointer-events-none transition-all duration-300 print:hidden group"
+  >
+    <svg class="absolute inset-0 w-full h-full" viewBox="0 0 36 36">
+      <circle cx="18" cy="18" r="16" fill="none" stroke="#f1f5f9" stroke-width="2.5"></circle>
+      <circle 
+        id="scrollProgress" 
+        class="progress-ring__circle"
+        cx="18" cy="18" r="16" 
+        fill="none" 
+        stroke="#E31837" 
+        stroke-width="2.5" 
+        stroke-dasharray="100.53" 
+        stroke-dashoffset="100.53"
+        stroke-linecap="round"
+      ></circle>
+    </svg>
+    <i data-lucide="arrow-up" class="w-6 h-6 text-slate-600 group-hover:text-[#E31837] transition-colors relative z-10"></i>
+  </button>
+
+
+  <!-- Header -->
+  <header class="max-w-6xl mx-auto px-4 lg:px-8 pt-12 pb-8">
+    <div class="inline-block px-3 py-1 mb-4 text-xs font-bold tracking-wider text-red-600 uppercase border border-red-200 rounded-full bg-red-50">
+      Portfolio Annex
+    </div>
+    <h1 class="text-3xl md:text-5xl font-extrabold leading-tight tracking-tight text-slate-900">
+      Relevant Work Samples
+    </h1>
+    <p class="text-lg text-slate-600 mt-4 max-w-3xl leading-relaxed">
+      A visual showcase of interactive Power BI dashboards delivered across public-sector, healthcare, and pharmaceutical domains. These samples demonstrate the capacity to build intuitive, scalable, and multi-domain analytics platforms.
+    </p>
+  </header>
+
+  <!-- Samples Container -->
+  <main class="max-w-6xl mx-auto px-4 lg:px-8 space-y-12 md:space-y-20">
+    
+    <!-- Project 1: Djibouti MoE -->
+    <article class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden print-shadow-none page-break-avoid">
+      <div class="p-6 md:p-8 lg:p-10 border-b border-slate-100 flex flex-col md:flex-row gap-6 justify-between items-start md:items-center bg-slate-900 text-white">
+        <div class="max-w-3xl">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="p-1.5 bg-blue-500/20 text-blue-300 rounded-md"><i data-lucide="graduation-cap" class="w-5 h-5"></i></span>
+            <span class="text-xs font-bold uppercase tracking-widest text-blue-300">Public-Sector Performance Monitoring</span>
+          </div>
+          <h2 class="text-2xl font-bold mb-3">National Education Dashboard - MENFOP Djibouti</h2>
+          <p class="text-sm text-slate-300 leading-relaxed text-justify">
+            A comprehensive, fully French-language performance dashboard for the national education ministry. This platform monitors more than 400 schools across diverse operating contexts. It features a standardised performance-rating model, enabling comparative benchmarking and multi-level filtering. Designed for a central body monitoring decentralised units, making it a strong structural analogue to a federation Secretariat monitoring Affiliates.
+          </p>
+        </div>
+      </div>
+      <div class="p-6 md:p-10 bg-slate-50 flex justify-center">
+        <img 
+          src="../assets/relevant_work_sample/Screenshot 2026-06-14 005947.png" 
+          alt="Djibouti MoE Dashboard Screenshot" 
+          class="w-full max-w-5xl rounded-xl shadow-md border border-slate-200 object-contain"
+        >
+      </div>
+    </article>
+
+    <!-- Project 2: CarePlus+ -->
+    <article class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden print-shadow-none page-break-avoid">
+      <div class="p-6 md:p-8 lg:p-10 border-b border-slate-100 flex flex-col md:flex-row gap-6 justify-between items-start md:items-center bg-teal-900 text-white">
+        <div class="max-w-3xl">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="p-1.5 bg-teal-500/20 text-teal-300 rounded-md"><i data-lucide="activity" class="w-5 h-5"></i></span>
+            <span class="text-xs font-bold uppercase tracking-widest text-teal-300">Healthcare Service-Delivery</span>
+          </div>
+          <h2 class="text-2xl font-bold mb-3">Nursing & Patient-Care Analytics - CarePlus+</h2>
+          <p class="text-sm text-teal-100/80 leading-relaxed text-justify">
+            An end-to-end analytics solution covering patient outcomes, quality and safety indicators, staffing ratios, and financial metrics. The dashboard is structured across role-specific views for clinical, operational, and management users. This work demonstrates direct experience with service-delivery indicators and the operational realities of a health-service-providing organisation.
+          </p>
+        </div>
+      </div>
+      <div class="p-6 md:p-10 bg-slate-50 flex justify-center">
+        <img 
+          src="../assets/relevant_work_sample/Screenshot 2026-06-14 012256.png" 
+          alt="CarePlus Healthcare Dashboard Screenshot" 
+          class="w-full max-w-5xl rounded-xl shadow-md border border-slate-200 object-contain"
+        >
+      </div>
+    </article>
+
+    <!-- Project 3: Pharma Analytics -->
+    <article class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden print-shadow-none page-break-avoid">
+      <div class="p-6 md:p-8 lg:p-10 border-b border-slate-100 flex flex-col md:flex-row gap-6 justify-between items-start md:items-center bg-rose-950 text-white">
+        <div class="max-w-3xl">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="p-1.5 bg-rose-500/20 text-rose-300 rounded-md"><i data-lucide="flask-conical" class="w-5 h-5"></i></span>
+            <span class="text-xs font-bold uppercase tracking-widest text-rose-300">Enterprise Data Architecture</span>
+          </div>
+          <h2 class="text-2xl font-bold mb-3">Multi-Domain Pharmaceutical Platform</h2>
+          <p class="text-sm text-rose-200/80 leading-relaxed text-justify">
+            An enterprise pharmaceutical analytics platform spanning six functional domains: research and development, manufacturing, quality assurance, sales, and compliance. This engagement integrated diverse operational, financial, and regulatory data streams into a single coherent information architecture—directly relevant to managing multiple data sources (service delivery, finance, grants) within a unified Affiliate environment.
+          </p>
+        </div>
+      </div>
+      <div class="p-6 md:p-10 bg-slate-50 flex justify-center">
+        <img 
+          src="../assets/relevant_work_sample/Screenshot 2026-06-14 011644.png" 
+          alt="Pharmaceutical Analytics Dashboard Screenshot" 
+          class="w-full max-w-5xl rounded-xl shadow-md border border-slate-200 object-contain"
+        >
+      </div>
+    </article>
+
+  </main>
+
+  <script>
+    function scrollToTop() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateScrollProgress() {
+      const backToTopBtn = document.getElementById('backToTopBtn');
+      const scrollProgress = document.getElementById('scrollProgress');
+
+      if (!backToTopBtn || !scrollProgress) return;
+
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const progress = docHeight > 0 ? scrollTop / docHeight : 0;
+      const circumference = 100.53;
+
+      scrollProgress.style.strokeDashoffset = circumference - (progress * circumference);
+
+      if (scrollTop > 250) {
+        backToTopBtn.classList.remove('opacity-0', 'translate-y-10', 'pointer-events-none');
+        backToTopBtn.classList.add('opacity-100', 'translate-y-0');
+      } else {
+        backToTopBtn.classList.add('opacity-0', 'translate-y-10', 'pointer-events-none');
+        backToTopBtn.classList.remove('opacity-100', 'translate-y-0');
+      }
+    }
+
+    window.addEventListener('scroll', updateScrollProgress);
+    window.addEventListener('load', updateScrollProgress);
+
+    // Initialize Lucide Icons
+    lucide.createIcons();
+  </script>
+</body>
+</html>

@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/x-icon" href="../assets/favicon.ico">
+  <title>Financial Proposal - IPPF Affiliate Dashboard</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --ippf-red: #E31837;
+    }
+    html {
+      scroll-behavior: smooth;
+    }
+    .text-ippf-red { color: var(--ippf-red); }
+    .bg-ippf-red { background-color: var(--ippf-red); }
+    .border-ippf-red { border-color: var(--ippf-red); }
+    .selection\:bg-red-50 *::selection { background-color: #eff6ff; color: #1e3a8a; } /* Updated to trust blue selection */
+
+    /* Scroll Progress Button SVG */
+    .progress-ring__circle {
+      transition: stroke-dashoffset 0.1s;
+      transform: rotate(-90deg);
+      transform-origin: 50% 50%;
+    }
+
+    /* Force background colors and layouts to render accurately when exporting to PDF */
+    @media print {
+      body {
+        background-color: #ffffff !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .print-shadow-none {
+        box-shadow: none !important;
+      }
+      @page {
+        margin: 1.6cm 1.2cm;
+      }
+      /* Avoid breaking layout structures awkwardly across page seams */
+      .page-break-avoid {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-blue-50 selection:text-blue-900 relative">
+
+  <!-- Floating Print & Link Controls - Hidden on Print -->
+  <div class="fixed top-6 right-6 z-40 print:hidden flex flex-col gap-2 items-end">
+    <button 
+      onclick="window.location.href='../index.html'"
+      title="View the detailed Technical Proposal"
+      class="flex items-center gap-2 px-5 py-2.5 bg-slate-700 hover:bg-slate-800 text-white rounded-lg shadow-lg transition-all focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 font-semibold text-sm cursor-pointer"
+    >
+      <i data-lucide="file-text" class="w-4.5 h-4.5"></i>
+      <span>Technical Proposal</span>
+    </button>
+
+    <button 
+      onclick="window.location.href='IPPF_Analytics_Dashboard_Mockup.html'"
+      title="Open the IPPF Dashboard Mockup Interface"
+      class="flex items-center gap-2 px-5 py-2.5 bg-[#E31837] hover:bg-red-700 text-white rounded-lg shadow-lg transition-all focus:ring-2 focus:ring-offset-2 focus:ring-red-500 font-semibold text-sm cursor-pointer"
+    >
+      <i data-lucide="chart-no-axes-combined" class="w-4.5 h-4.5"></i>
+      <span>Dashboard Concept</span>
+    </button>
+
+    <button 
+      onclick="window.location.href='IPPF_Relevant_Work_Samples.html'"
+      title="View Relevant Work Samples and Case Studies"
+      class="flex items-center gap-2 px-2 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg shadow-lg transition-all focus:ring-2 focus:ring-offset-2 focus:ring-red-500 font-semibold text-sm cursor-pointer"
+    >
+      <i data-lucide="gallery-vertical" class="w-4.5 h-4.5"></i>
+      <span>Relevant Work Samples</span>
+    </button>
+
+    <button 
+      onclick="window.location.href='IPPF_Data_Architecture.html'"
+      title="View the Data Architecture Diagrams"
+      class="flex items-center gap-2 px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg shadow-lg transition-all focus:ring-2 focus:ring-offset-2 focus:ring-red-500 font-semibold text-sm cursor-pointer"
+    >
+      <i data-lucide="database" class="w-4.5 h-4.5"></i>
+      <span>Data Architecture</span>
+    </button>
+
+    <button 
+      onclick="window.location.href='../assets/cv/IPPF_Team_CVs.html'"
+      title="View the Lean Team CVs Document"
+      class="flex items-center gap-2 px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg shadow-lg transition-all focus:ring-2 focus:ring-offset-2 focus:ring-red-500 font-semibold text-sm cursor-pointer"
+    >
+      <i data-lucide="users" class="w-4.5 h-4.5"></i>
+      <span>Team CVs</span>
+    </button>
+  </div>
+
+  <!-- Scroll Progress "Back to Top" Button -->
+  <button 
+    id="backToTopBtn" 
+    onclick="scrollToTop()" 
+    title="Back to Top"
+    class="fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 rounded-full bg-white shadow-xl border border-slate-100 cursor-pointer opacity-0 translate-y-10 pointer-events-none transition-all duration-300 print:hidden group"
+  >
+    <svg class="absolute inset-0 w-full h-full" viewBox="0 0 36 36">
+      <circle cx="18" cy="18" r="16" fill="none" stroke="#f1f5f9" stroke-width="2.5"></circle>
+      <circle 
+        id="scrollProgress" 
+        class="progress-ring__circle"
+        cx="18" cy="18" r="16" 
+        fill="none" 
+        stroke="#059669" 
+        stroke-width="2.5" 
+        stroke-dasharray="100.53" 
+        stroke-dashoffset="100.53"
+        stroke-linecap="round"
+      ></circle>
+    </svg>
+    <i data-lucide="arrow-up" class="w-6 h-6 text-slate-600 group-hover:text-blue-600 transition-colors relative z-10"></i>
+  </button>
+
+  <!-- Main Document Container -->
+  <div class="max-w-5xl mx-auto bg-white min-h-screen shadow-2xl print:shadow-none print:w-full print:max-w-none border-t-8 border-slate-900 my-8 print:my-0 relative z-10">
+    
+    <!-- Cover Page / Header -->
+    <header class="relative bg-slate-900 text-white overflow-hidden pb-16 pt-20">
+      <!-- Gradient decorative elements -->
+      <div class="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 rounded-full bg-blue-500 opacity-20 blur-3xl pointer-events-none"></div>
+      <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-emerald-500 opacity-20 blur-3xl pointer-events-none"></div>
+      
+      <div class="relative z-10 px-12 md:px-16">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+          <div class="bg-white p-4 rounded-lg inline-block shadow-md">
+            <!-- Official IPPF Logo from ippf.org -->
+            <img 
+              src="https://www.ippf.org/themes/ippf_general/ippf-logo-main-red.svg" 
+              alt="IPPF Logo" 
+              class="h-12 object-contain"
+            />
+          </div>
+          <div class="inline-block px-3 py-1 text-xs font-bold tracking-wider text-emerald-300 uppercase border border-emerald-500/30 rounded-full bg-emerald-950/40 max-w-fit">
+            Financial Proposal
+          </div>
+        </div>
+        
+        <h1 class="text-3xl md:text-5xl font-extrabold leading-tight mb-4 tracking-tight">
+          Financial Investment & <br class="hidden md:inline" />
+          <span class="text-emerald-400">Resource Allocations</span>
+        </h1>
+        <p class="text-xl text-slate-300 font-medium max-w-3xl mb-4">
+          IPPF Dashboard Consultancy Phase 4: Affiliate Dashboard
+        </p>
+        <p class="text-sm text-slate-400 font-medium max-w-2xl mb-12">
+          Needs Analysis, Development and Deployment
+        </p>
+        
+        <div class="pt-8 border-t border-slate-700/50 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+          <div>
+            <p class="text-xs text-slate-400 uppercase tracking-widest mb-1.5 font-bold">Submitted by</p>
+            <p class="text-xl font-bold text-white">Mihir Soni</p>
+            <p class="text-sm text-white-400 font-medium">Independent Consultant</p>
+          </div>
+          <div class="text-left md:text-right">
+            <p class="text-xs text-slate-400 uppercase tracking-widest mb-1 font-bold">Total Proposed Investment</p>
+            <p class="text-3xl font-black text-emerald-400">$122,580 <span class="text-xs font-normal text-emerald-200/50">USD</span></p>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <div class="px-12 md:px-16 py-16 space-y-16 print:space-y-12 print:px-8">
+      
+      <!-- Section 1: Executive Financial Summary -->
+      <section class="page-break-avoid">
+        <div class="flex items-center gap-3 mb-6 border-b border-slate-200 pb-4">
+          <div class="p-2 bg-blue-50 text-blue-700 rounded-lg">
+            <i data-lucide="bar-chart-3" class="w-[22px] h-[22px]"></i>
+          </div>
+          <h2 class="text-2xl font-bold text-slate-900">1. Executive Budget Summary</h2>
+        </div>
+        
+        <p class="text-slate-600 mb-8 leading-relaxed">
+          The proposed financial structure below represents the comprehensive allocation across the three core development phases, including specialized resource rates, multilingual translation coverage, system integrations, and a dedicated contingency framework to secure delivery targets.
+        </p>
+
+        <!-- Metric KPI Cards -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <!-- Main KPI card aligned with trust and growth -->
+          <div class="bg-slate-900 text-white p-5 rounded-xl border border-slate-800 shadow-sm print:bg-slate-100 print:text-slate-950 print:border-slate-300">
+            <span class="text-[10px] font-bold text-white-400 uppercase tracking-wider block">Total Project Fee</span>
+            <span class="text-2xl font-extrabold mt-1 block text-emerald-400 print:text-slate-950">$122,580</span>
+            <span class="text-[10px] text-slate-400 block mt-0.5">Including VAT</span>
+          </div>
+          <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 shadow-sm">
+            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Total Resource Effort</span>
+            <span class="text-2xl font-extrabold text-slate-900 mt-1 block">216 Days</span>
+            <span class="text-[10px] text-slate-500 block mt-0.5">3 Senior Consultants</span>
+          </div>
+          <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 shadow-sm">
+            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Base Development Fee</span>
+            <span class="text-2xl font-extrabold text-slate-900 mt-1 block">$113,500</span>
+            <span class="text-[10px] text-slate-500 block mt-0.5">Direct Project Costs</span>
+          </div>
+          <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 shadow-sm">
+            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Risk Contingency (8%)</span>
+            <span class="text-2xl font-extrabold text-amber-600 mt-1 block">$9,080</span>
+            <span class="text-[10px] text-slate-500 block mt-0.5">Targeted Mitigation fund</span>
+          </div>
+        </div>
+
+        <!-- Summary Table -->
+        <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+          <div class="px-6 py-4 border-b border-slate-100 bg-slate-50">
+            <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wide">Financial Breakdown by Phase</h3>
+          </div>
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-100/50 text-[11px] font-bold text-slate-600 uppercase tracking-wider border-b border-slate-200">
+                <th class="py-3 px-6">Phase Description</th>
+                <th class="py-3 px-6 text-center">Consultant Days</th>
+                <th class="py-3 px-6 text-right">Phase Cost (incl. VAT)</th>
+                <th class="py-3 px-6 text-right">Share</th>
+              </tr>
+            </thead>
+            <tbody class="text-xs sm:text-sm text-slate-700 divide-y divide-slate-100">
+              <tr class="hover:bg-slate-50/50 transition-all">
+                <td class="py-3.5 px-6 font-medium text-slate-900">Part 1 – Needs Analysis & Functional Specification</td>
+                <td class="py-3.5 px-6 text-center font-medium">58</td>
+                <td class="py-3.5 px-6 text-right font-bold text-slate-900">$30,650</td>
+                <td class="py-3.5 px-6 text-right text-slate-500">25.0%</td>
+              </tr>
+              <tr class="hover:bg-slate-50/50 transition-all">
+                <td class="py-3.5 px-6 font-medium text-slate-900">Part 2 – Development, Implementation & Iteration</td>
+                <td class="py-3.5 px-6 text-center font-medium">118</td>
+                <td class="py-3.5 px-6 text-right font-bold text-slate-900">$58,850</td>
+                <td class="py-3.5 px-6 text-right text-slate-500">48.0%</td>
+              </tr>
+              <tr class="hover:bg-slate-50/50 transition-all">
+                <td class="py-3.5 px-6 font-medium text-slate-900">Part 3 – Rollout, Training & Adoption</td>
+                <td class="py-3.5 px-6 text-center font-medium">40</td>
+                <td class="py-3.5 px-6 text-right font-bold text-slate-900">$24,000</td>
+                <td class="py-3.5 px-6 text-right text-slate-500">19.6%</td>
+              </tr>
+              <!-- Totals row styling -->
+              <tr class="bg-slate-50/80 font-medium text-slate-900 border-t-2 border-slate-200">
+                <td class="py-3.5 px-6 text-slate-500 font-semibold" colspan="2">Subtotal – Fees & Direct Costs</td>
+                <td class="py-3.5 px-6 text-right font-bold">$113,500</td>
+                <td class="py-3.5 px-6 text-right text-slate-400">—</td>
+              </tr>
+              <tr class="bg-slate-50/80 font-medium text-slate-900">
+                <td class="py-3.5 px-6 text-slate-500 font-semibold" colspan="2">Contingency (8%)</td>
+                <td class="py-3.5 px-6 text-right font-bold text-amber-600">$9,080</td>
+                <td class="py-3.5 px-6 text-right text-slate-400">—</td>
+              </tr>
+              <tr class="bg-slate-50/80 font-medium text-slate-900">
+                <td class="py-3.5 px-6 text-slate-500 font-semibold" colspan="2">VAT / GST (0%)</td>
+                <td class="py-3.5 px-6 text-right text-emerald-700">$0</td>
+                <td class="py-3.5 px-6 text-right text-slate-400">—</td>
+              </tr>
+              <tr class="bg-emerald-50/50 font-bold text-slate-900 border-t border-emerald-200">
+                <td class="py-4 px-6 text-slate-900" colspan="2">TOTAL FEE (incl. VAT)</td>
+                <td class="py-4 px-6 text-right text-lg text-emerald-700 font-black">$122,580</td>
+                <td class="py-4 px-6 text-right text-emerald-800 font-bold">100.0%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Section 2: Resource Day Rate Assumptions -->
+      <section class="page-break-avoid">
+        <div class="flex items-center gap-3 mb-6 border-b border-slate-200 pb-4">
+          <div class="p-2 bg-blue-50 text-blue-700 rounded-lg">
+            <i data-lucide="users" class="w-5 h-5"></i>
+          </div>
+          <h2 class="text-2xl font-bold text-slate-900">2. Day Rate Assumptions (USD, incl. tax)</h2>
+        </div>
+        
+        <p class="text-slate-600 mb-8 leading-relaxed">
+          The team consists purely of senior consultants working in direct collaboration. In keeping with a transparent approach, specialized senior rates are set systematically below matching tier rates to optimize value.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="border border-slate-200 rounded-xl p-5 bg-white relative hover:border-blue-300 transition-all">
+            <span class="absolute top-4 right-4 bg-emerald-50 text-emerald-700 border border-emerald-100 text-xs font-bold px-2.5 py-1 rounded-full">$525 / day</span>
+            <h4 class="font-bold text-slate-900 text-sm">Mihir Soni</h4>
+            <p class="text-[10px] text-blue-600 font-semibold tracking-wider mt-1 uppercase">Lead Consultant / PM</p>
+            <p class="text-[11px] text-slate-500 mt-3 leading-relaxed">Lead Power BI Architect overseeing end-to-end scope delivery and translation management.</p>
+          </div>
+          <div class="border border-slate-200 rounded-xl p-5 bg-white relative hover:border-blue-300 transition-all">
+            <span class="absolute top-4 right-4 bg-emerald-50 text-emerald-700 border border-emerald-100 text-xs font-bold px-2.5 py-1 rounded-full">$425 / day</span>
+            <h4 class="font-bold text-slate-900 text-sm">Harsh Jariwala</h4>
+            <p class="text-[10px] text-blue-600 font-semibold tracking-wider mt-1 uppercase">Senior PBI Developer</p>
+            <p class="text-[11px] text-slate-500 mt-3 leading-relaxed">Dedicated expert handling DAX logic, multi-language UI alignments and localized designs.</p>
+          </div>
+          <div class="border border-slate-200 rounded-xl p-5 bg-white relative hover:border-blue-300 transition-all">
+            <span class="absolute top-4 right-4 bg-emerald-50 text-emerald-700 border border-emerald-100 text-xs font-bold px-2.5 py-1 rounded-full">$425 / day</span>
+            <h4 class="font-bold text-slate-900 text-sm">Ranjith Gunasekaran</h4>
+            <p class="text-[10px] text-blue-600 font-semibold tracking-wider mt-1 uppercase">Senior Data Engineer</p>
+            <p class="text-[11px] text-slate-500 mt-3 leading-relaxed">System specialist driving Snowflake pipelines, ADF triggers and centralized security controls.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 3: Detailed Line-Item Budget -->
+      <section>
+        <div class="flex items-center gap-3 mb-6 border-b border-slate-200 pb-4">
+          <div class="p-2 bg-blue-50 text-blue-700 rounded-lg">
+            <i data-lucide="clipboard-list" class="w-5 h-5"></i>
+          </div>
+          <h2 class="text-2xl font-bold text-slate-900">3. Line-Item Budget by Phase</h2>
+        </div>
+
+        <p class="text-slate-600 mb-8 text-sm">
+          Detailed transparency of tasks, efforts and allocations across resources and non-personnel costs.
+        </p>
+
+        <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+          <table class="w-full text-left border-collapse text-xs sm:text-sm">
+            <thead>
+              <tr class="bg-slate-100/50 text-[11px] font-bold text-slate-600 uppercase tracking-wider border-b border-slate-200">
+                <th class="py-3 px-4 pl-6">Phase & Resource Name</th>
+                <th class="py-3 px-4 text-center">Days</th>
+                <th class="py-3 px-4 text-right">Unit Value</th>
+                <th class="py-3 px-4 text-right">Line Total</th>
+                <th class="py-3 px-4 pr-6 max-w-xs">Activity Scope & Deliverables</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-slate-700">
+              
+              <!-- PART 1 -->
+              <tr class="bg-blue-50/50 font-bold text-slate-950 uppercase tracking-wider text-[10px] border-y border-blue-100">
+                <td colspan="5" class="py-2.5 px-6 text-blue-800">Part 1 – Needs Analysis & Functional Specification</td>
+              </tr>
+              <tr>
+                <td class="py-3 px-4 pl-6 font-medium text-slate-900">Mihir Soni (Lead)</td>
+                <td class="py-3 px-4 text-center font-medium">40</td>
+                <td class="py-3 px-4 text-right">$525</td>
+                <td class="py-3 px-4 text-right font-bold text-slate-900">$21,000</td>
+                <td class="py-3 px-4 pr-6 text-slate-500 text-xs">Inception alignment, global surveys, stakeholder needs mapping, specification document</td>
+              </tr>
+              <tr>
+                <td class="py-3 px-4 pl-6 font-medium text-slate-900">Harsh Jariwala (Developer)</td>
+                <td class="py-3 px-4 text-center font-medium">8</td>
+                <td class="py-3 px-4 text-right">$425</td>
+                <td class="py-3 px-4 text-right font-bold text-slate-900">$3,400</td>
+                <td class="py-3 px-4 pr-6 text-slate-500 text-xs">Design inputs and dashboard UX/UI mapping</td>
+              </tr>
+              <tr>
+                <td class="py-3 px-4 pl-6 font-medium text-slate-900">Ranjith Gunasekaran (Data Eng)</td>
+                <td class="py-3 px-4 text-center font-medium">10</td>
+                <td class="py-3 px-4 text-right">$425</td>
+                <td class="py-3 px-4 text-right font-bold text-slate-900">$4,250</td>
+                <td class="py-3 px-4 pr-6 text-slate-500 text-xs">Snowflake data source profiling and existing pipeline checks</td>
+              </tr>
+              <tr>
+                <td class="py-3 px-4 pl-6 font-medium text-slate-900 italic">Translation Capacity (FR/ES/AR)</td>
+                <td class="py-3 px-4 text-center text-slate-400">—</td>
+                <td class="py-3 px-4 text-right text-slate-400">—</td>
+                <td class="py-3 px-4 text-right font-bold text-slate-900">$2,000</td>
+                <td class="py-3 px-4 pr-6 text-slate-500 text-xs font-normal">Translation of global instruments, surveys, and documentation outputs</td>
+              </tr>
+
+              <!-- PART 2 -->
+              <tr class="bg-blue-50/50 font-bold text-slate-950 uppercase tracking-wider text-[10px] border-y border-blue-100 page-break-avoid">
+                <td colspan="5" class="py-2.5 px-6 text-blue-800">Part 2 – Development, Implementation & Iteration</td>
+              </tr>
+              <tr class="page-break-avoid">
+                <td class="py-3 px-4 pl-6 font-medium text-slate-900">Mihir Soni (Lead)</td>
+                <td class="py-3 px-4 text-center font-medium">22</td>
+                <td class="py-3 px-4 text-right">$525</td>
+                <td class="py-3 px-4 text-right font-bold text-slate-900">$11,550</td>
+                <td class="py-3 px-4 pr-6 text-slate-500 text-xs">Development sprints planning, Snowflake architectural integration alignment</td>
+              </tr>
+              <tr class="page-break-avoid">
+                <td class="py-3 px-4 pl-6 font-medium text-slate-900">Harsh Jariwala (Developer)</td>
+                <td class="py-3 px-4 text-center font-medium">48</td>
+                <td class="py-3 px-4 text-right">$425</td>
+                <td class="py-3 px-4 text-right font-bold text-slate-900">$20,400</td>
+                <td class="py-3 px-4 pr-6 text-slate-500 text-xs">Dashboard build, DAX models, Row Level Security (RLS) integration, multi-language UI</td>
+              </tr>
+              <tr class="page-break-avoid">
+                <td class="py-3 px-4 pl-6 font-medium text-slate-900">Ranjith Gunasekaran (Data Eng)</td>
+                <td class="py-3 px-4 text-center font-medium">48</td>
+                <td class="py-3 px-4 text-right">$425</td>
+                <td class="py-3 px-4 text-right font-bold text-slate-900">$20,400</td>
+                <td class="py-3 px-4 pr-6 text-slate-500 text-xs">Snowflake schema modifications, ADF parameterization setups and environment configuration</td>
+              </tr>
+              <tr class="page-break-avoid">
+                <td class="py-3 px-4 pl-6 font-medium text-slate-900 italic">Translation Capacity (FR/ES/AR)</td>
+                <td class="py-3 px-4 text-center text-slate-400">—</td>
+                <td class="py-3 px-4 text-right text-slate-400">—</td>
+                <td class="py-3 px-4 text-right font-bold text-slate-900">$5,000</td>
+                <td class="py-3 px-4 pr-6 text-slate-500 text-xs font-normal">Dashboard interface labels, tooltips, translations and metadata integration</td>
+              </tr>
+              <tr class="page-break-avoid">
+                <td class="py-3 px-4 pl-6 font-medium text-slate-900 italic">Software & dev licenses</td>
+                <td class="py-3 px-4 text-center text-slate-400">—</td>
+                <td class="py-3 px-4 text-right text-slate-400">—</td>
+                <td class="py-3 px-4 text-right font-bold text-slate-900">$1,500</td>
+                <td class="py-3 px-4 pr-6 text-slate-500 text-xs font-normal">Development environment Power BI Pro licenses, specialized PM tools and utilities</td>
+              </tr>
+
+              <!-- PART 3 -->
+              <tr class="bg-blue-50/50 font-bold text-slate-950 uppercase tracking-wider text-[10px] border-y border-blue-100 page-break-avoid">
+                <td colspan="5" class="py-2.5 px-6 text-blue-800">Part 3 – Rollout, Training & Adoption</td>
+              </tr>
+              <tr class="page-break-avoid">
+                <td class="py-3 px-4 pl-6 font-medium text-slate-900">Mihir Soni (Lead)</td>
+                <td class="py-3 px-4 text-center font-medium">20</td>
+                <td class="py-3 px-4 text-right">$525</td>
+                <td class="py-3 px-4 text-right font-bold text-slate-900">$10,500</td>
+                <td class="py-3 px-4 pr-6 text-slate-500 text-xs">Train-the-Trainer (ToT) system design, rollout oversight, regional hub onboarding</td>
+              </tr>
+              <tr class="page-break-avoid">
+                <td class="py-3 px-4 pl-6 font-medium text-slate-900">Harsh Jariwala (Developer)</td>
+                <td class="py-3 px-4 text-center font-medium">14</td>
+                <td class="py-3 px-4 text-right">$425</td>
+                <td class="py-3 px-4 text-right font-bold text-slate-900">$5,950</td>
+                <td class="py-3 px-4 pr-6 text-slate-500 text-xs">Adoption support webinars, training materials creation, guide builds</td>
+              </tr>
+              <tr class="page-break-avoid">
+                <td class="py-3 px-4 pl-6 font-medium text-slate-900">Ranjith Gunasekaran (Data Eng)</td>
+                <td class="py-3 px-4 text-center font-medium">6</td>
+                <td class="py-3 px-4 text-right">$425</td>
+                <td class="py-3 px-4 text-right font-bold text-slate-900">$2,550</td>
+                <td class="py-3 px-4 pr-6 text-slate-500 text-xs">Production environment deployments support and system handover checkups</td>
+              </tr>
+              <tr class="page-break-avoid">
+                <td class="py-3 px-4 pl-6 font-medium text-slate-900 italic">Translation Capacity (FR/ES/AR)</td>
+                <td class="py-3 px-4 text-center text-slate-400">—</td>
+                <td class="py-3 px-4 text-right text-slate-400">—</td>
+                <td class="py-3 px-4 text-right font-bold text-slate-900">$5,000</td>
+                <td class="py-3 px-4 pr-6 text-slate-500 text-xs font-normal">Training modules, quick-reference sheets, user walkthroughs on IPPF Academy platform</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Section 4: Notes & Assumptions -->
+      <section class="page-break-avoid">
+        <div class="flex items-center gap-3 mb-6 border-b border-slate-200 pb-4">
+          <div class="p-2 bg-blue-50 text-blue-700 rounded-lg">
+            <i data-lucide="info" class="w-5 h-5"></i>
+          </div>
+          <h2 class="text-2xl font-bold text-slate-900">4. Strategic Notes & Assumptions</h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 text-xs text-slate-600 leading-relaxed text-justify">
+          <div class="space-y-1">
+            <h4 class="font-bold text-slate-900 text-[13px]">Currency</h4>
+            <p>All values are quoted in USD, strictly complying with the Terms of Reference templates.</p>
+          </div>
+          <div class="space-y-1">
+            <h4 class="font-bold text-slate-900 text-[13px]">Level of Effort Allocation</h4>
+            <p>Indicative days total 216 across resources (Mihir Soni: 82 days, Harsh Jariwala: 70 days, Ranjith Gunasekaran: 64 days). Days are concentrated heavily in active design & build segments in Part 2. Final scopes are finalized at kickoff.</p>
+          </div>
+          <div class="space-y-1">
+            <h4 class="font-bold text-slate-900 text-[13px]">Cloud Hosting and Licenses</h4>
+            <p>Hosting (Azure & Snowflake core capacity costs) is excluded. Per IPPF clarify briefings, infrastructure fees rest with IPPF, with our technical teams configuring integrations directly. Final licensing strategy is configured during Part 1.</p>
+          </div>
+          <div class="space-y-1">
+            <h4 class="font-bold text-slate-900 text-[13px]">VAT & GST Legal Status</h4>
+            <p><b>Cost to IPPF:</b> Services to IPPF are an export of services from India, which is zero-rated under Indian GST law. No GST, VAT or IGST is added — the quoted fee is the total amount payable.</p>
+            <p><b>Consultant's tax compliance:</b> Any Indian tax registration or compliance is the consultant's sole responsibility, completed prior to invoicing, with no impact on IPPF's cost or payment process.</p>
+          </div>
+          <div class="space-y-1">
+            <h4 class="font-bold text-slate-900 text-[13px]">Affiliate licensing</h4>
+            <p>Power BI licensing for Affiliate (MA/CP) end users is excluded, as the final user base and access model are defined during the needs analysis. We will recommend a scalable, costed model (e.g. Power BI Embedded or Premium Per User) in Part 1. Our team's own Power BI Pro development licences are included under Software & tools.</p>
+          </div>
+          <div class="space-y-1">
+            <h4 class="font-bold text-slate-900 text-[13px]">Validity</h4>
+            <p>This proposal is valid for 90 days from the submission date.</p>
+          </div>
+          <div class="space-y-1 col-span-1 md:col-span-2 bg-slate-50 p-4 border border-slate-200 rounded-xl">
+            <h4 class="font-bold text-slate-900 text-[13px] mb-1">Proposed Milestone Payment Terms</h4>
+            <p class="mb-2">We suggest a secure delivery-linked layout structure to support smooth program momentum:</p>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-center text-[11px] font-bold">
+              <div class="bg-white p-2 border border-slate-200 rounded">Mobilization<br><span class="text-emerald-600 text-xs">15%</span></div>
+              <div class="bg-white p-2 border border-slate-200 rounded">Part 1 Review<br><span class="text-emerald-600 text-xs">25%</span></div>
+              <div class="bg-white p-2 border border-slate-200 rounded">Part 2 Sprints<br><span class="text-emerald-600 text-xs">35%</span></div>
+              <div class="bg-white p-2 border border-slate-200 rounded">Part 3 Close<br><span class="text-emerald-600 text-xs">25%</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Email Attachment & Delivery Callout -->
+      <section class="page-break-avoid">
+        <div class="bg-blue-50 border-l-4 border-blue-600 p-6 rounded-r-xl shadow-sm">
+          <div class="flex gap-4 items-start">
+            <div class="p-2 bg-blue-100 text-blue-700 rounded-lg">
+              <i data-lucide="paperclip" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h4 class="text-base font-bold text-slate-900 mb-1">Email Deliverable & Reference Annexes</h4>
+              <p class="text-slate-700 text-xs leading-relaxed">
+                Please note that the **fully detailed interactive breakdown of financial proposal costs**, raw source files, and granular resource worksheets are attached directly in your received email as CSV/Excel workbooks for internal database loading and tracking.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <script>
+    // Initialize all Lucide Icons dynamically
+    lucide.createIcons();
+
+    // Scroll Progress Logic for "Back to Top" Button
+    const backToTopBtn = document.getElementById('backToTopBtn');
+    const scrollProgress = document.getElementById('scrollProgress');
+    
+    // Circumference of the SVG circle (r=16) -> 2 * pi * 16 = 100.53
+    const circumference = 2 * Math.PI * 16; 
+
+    window.addEventListener('scroll', () => {
+      const scrollY = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      
+      // Calculate scroll fraction (safeguard against division by zero)
+      const scrollFraction = docHeight > 0 ? scrollY / docHeight : 0;
+      const drawLength = circumference * scrollFraction;
+      
+      if (scrollProgress) {
+        scrollProgress.style.strokeDashoffset = circumference - drawLength;
+      }
+
+      // Show button after scrolling down 300px
+      if (scrollY > 300) {
+        backToTopBtn.classList.remove('opacity-0', 'translate-y-10', 'pointer-events-none');
+        backToTopBtn.classList.add('opacity-100', 'translate-y-0', 'auto');
+      } else {
+        backToTopBtn.classList.add('opacity-0', 'translate-y-10', 'pointer-events-none');
+        backToTopBtn.classList.remove('opacity-100', 'translate-y-0', 'auto');
+      }
+    });
+
+    function scrollToTop() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>

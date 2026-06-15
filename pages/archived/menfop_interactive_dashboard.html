@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MENFOP - Tableau de Bord National</title>
+    
+    <!-- Tailwind CSS for Styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        menfop: {
+                            blue: '#1b365d',
+                            green: '#008a4b',
+                            light: '#f8fafc',
+                            excellent: '#10B981',
+                            moyen: '#F59E0B',
+                            insuffisant: '#EF4444'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Chart.js for Graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        /* Smooth transitions for tabs */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Custom Scrollbar for the table */
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 8px;
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9; 
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-gray-800 font-sans h-screen flex flex-col overflow-hidden">
+
+    <!-- HEADER -->
+    <header class="bg-menfop-blue text-white shadow-md z-20 relative flex-shrink-0">
+        <div class="flex items-center justify-between px-4 lg:px-6 h-16">
+            <div class="flex items-center space-x-4">
+                <button id="mobile-menu-btn" class="lg:hidden p-2 hover:bg-blue-800 rounded-md transition-colors">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+                <div class="flex items-center space-x-3">
+                    <div class="bg-white p-1.5 rounded-md flex items-center justify-center shadow-sm">
+                        <img src="https://play-lh.googleusercontent.com/IbWR12Hpvst99rOcCNoakqXXnx0ZuZwXZwJ8_B3BO6LjKsIbEYIfGZ01guZ2oZ5m6Q" alt="MENFOP Logo" class="h-8 object-contain" onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/d/d4/IPPF_logo.png';">
+                    </div>
+                    <div class="hidden sm:block">
+                        <h1 class="text-lg font-bold leading-tight tracking-wide">MENFOP</h1>
+                        <p class="text-[10px] text-blue-200 uppercase tracking-wider">République de Djibouti</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Global Filters -->
+            <div class="hidden md:flex items-center space-x-4">
+                <div class="flex items-center space-x-2 bg-blue-900/50 border border-blue-800 rounded-lg px-3 py-1.5 transition-colors hover:bg-blue-800/50">
+                    <span class="text-xs text-blue-200">Année:</span>
+                    <select class="bg-transparent text-sm font-medium text-white outline-none cursor-pointer appearance-none pr-4">
+                        <option value="2025" class="text-gray-900">2024-2025</option>
+                        <option value="2024" class="text-gray-900">2023-2024</option>
+                    </select>
+                </div>
+                
+                <div class="relative group">
+                    <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-300 w-4 h-4 group-focus-within:text-white transition-colors"></i>
+                    <input type="text" placeholder="Rechercher une école..." class="bg-blue-900/50 border border-blue-800 rounded-lg pl-9 pr-4 py-1.5 text-sm text-white placeholder-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:bg-blue-800/80 w-64 transition-all">
+                </div>
+
+                <div class="w-px h-6 bg-blue-800 mx-2"></div>
+                
+                <button class="relative p-2 hover:bg-blue-800 rounded-full transition-colors">
+                    <i data-lucide="bell" class="w-5 h-5"></i>
+                    <span class="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 border-2 border-menfop-blue rounded-full"></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden relative">
+        
+        <!-- SIDEBAR -->
+        <aside id="sidebar" class="absolute lg:static inset-y-0 left-0 z-10 w-64 bg-white border-r border-gray-200 flex flex-col transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
+            <div class="p-4 flex-1 overflow-y-auto">
+                <p class="px-4 text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 mt-2">Tableaux de bord</p>
+                
+                <nav class="space-y-1" id="nav-menu">
+                    <button data-target="overview" class="nav-btn active w-full flex items-center space-x-3 px-4 py-3 rounded-lg bg-blue-50 text-menfop-blue font-medium transition-colors">
+                        <i data-lucide="activity" class="w-5 h-5 text-menfop-green"></i>
+                        <span>Vue d'ensemble</span>
+                    </button>
+                    
+                    <button data-target="profil" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                        <i data-lucide="building-2" class="w-5 h-5 text-gray-400"></i>
+                        <span>Profil Établissement</span>
+                    </button>
+
+                    <button data-target="pedagogie" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                        <i data-lucide="graduation-cap" class="w-5 h-5 text-gray-400"></i>
+                        <span>Gestion Pédagogique</span>
+                    </button>
+
+                    <button data-target="admin" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                        <i data-lucide="settings" class="w-5 h-5 text-gray-400"></i>
+                        <span>Gestion Admin.</span>
+                    </button>
+                </nav>
+
+                <div class="mt-8">
+                    <p class="px-4 text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Export & Rapports</p>
+                    <button class="w-full flex items-center space-x-3 px-4 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors rounded-lg hover:bg-gray-50">
+                        <i data-lucide="book-marked" class="w-4 h-4 text-gray-400"></i>
+                        <span>Générer rapport PDF</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-4 border-t border-gray-100 bg-gray-50/50">
+                <div class="flex items-center space-x-3 px-2 py-2">
+                    <div class="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center text-menfop-blue font-bold text-sm shadow-sm border border-blue-200">
+                        MS
+                    </div>
+                    <div class="text-sm">
+                        <p class="font-bold text-gray-900">Mihir Soni</p>
+                        <p class="text-xs text-gray-500">Administrateur</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Mobile overlay -->
+        <div id="mobile-overlay" class="fixed inset-0 bg-gray-900/50 z-0 hidden lg:hidden"></div>
+
+        <!-- MAIN CONTENT -->
+        <main class="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 bg-slate-50 relative custom-scrollbar w-full">
+            <div class="max-w-7xl mx-auto pb-12">
+                
+                <!-- OVERVIEW TAB -->
+                <div id="overview" class="tab-content active space-y-6">
+                    <div class="mb-6">
+                        <h2 class="text-2xl md:text-3xl font-bold text-gray-800">Tableau de Bord National</h2>
+                        <p class="text-gray-500 mt-1">Aperçu global des performances des établissements - Année Scolaire 2024-2025</p>
+                    </div>
+
+                    <!-- KPI Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex items-start space-x-4 hover:shadow-md transition-shadow">
+                            <div class="p-3 rounded-lg bg-menfop-blue text-white"><i data-lucide="building-2"></i></div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-500 mb-1 uppercase tracking-wide">Total Écoles</h3>
+                                <div class="text-3xl font-bold text-gray-900">406</div>
+                                <p class="text-xs text-gray-400 mt-1">Établissements actifs</p>
+                            </div>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex items-start space-x-4 hover:shadow-md transition-shadow">
+                            <div class="p-3 rounded-lg bg-menfop-green text-white"><i data-lucide="users"></i></div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-500 mb-1 uppercase tracking-wide">Effectif Total</h3>
+                                <div class="text-3xl font-bold text-gray-900">3,582</div>
+                                <p class="text-xs text-gray-400 mt-1">Élèves inscrits</p>
+                            </div>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex items-start space-x-4 hover:shadow-md transition-shadow">
+                            <div class="p-3 rounded-lg bg-emerald-500 text-white"><i data-lucide="activity"></i></div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-500 mb-1 uppercase tracking-wide">Taux Excellence</h3>
+                                <div class="text-3xl font-bold text-gray-900">58%</div>
+                                <p class="text-xs text-emerald-600 mt-1 font-medium">↑ +4% vs 2023</p>
+                            </div>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex items-start space-x-4 hover:shadow-md transition-shadow">
+                            <div class="p-3 rounded-lg bg-red-500 text-white"><i data-lucide="shield-alert"></i></div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-500 mb-1 uppercase tracking-wide">En Difficulté</h3>
+                                <div class="text-3xl font-bold text-gray-900">42</div>
+                                <p class="text-xs text-red-500 mt-1 font-medium">Intervention requise</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Area 1 -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-bold text-gray-800">Effectif des Élèves par Classe</h3>
+                                <button class="text-gray-400 hover:text-menfop-blue"><i data-lucide="more-horizontal" class="w-5 h-5"></i></button>
+                            </div>
+                            <div class="relative h-72 w-full">
+                                <canvas id="chartEffectif"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-bold text-gray-800">Équipement en Infrastructures</h3>
+                                <button class="text-gray-400 hover:text-menfop-blue"><i data-lucide="more-horizontal" class="w-5 h-5"></i></button>
+                            </div>
+                            <div class="relative h-72 w-full">
+                                <canvas id="chartInfra"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PROFIL TAB -->
+                <div id="profil" class="tab-content space-y-6">
+                    <div class="mb-6">
+                        <h2 class="text-2xl md:text-3xl font-bold text-gray-800">Profil de l'Établissement</h2>
+                        <p class="text-gray-500 mt-1">Infrastructures, équipements et conditions d'accueil</p>
+                    </div>
+                    
+                    <!-- Star Ratings Grid -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                        <h3 class="text-lg font-bold text-gray-800 mb-6 border-b border-gray-100 pb-2">Évaluation des Infrastructures Clés (Moyenne Nationale)</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-5 gap-4" id="star-ratings-container">
+                            <!-- Ratings inserted via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Data Table -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+                            <h3 class="text-lg font-bold text-gray-800">Liste Détaillée des Établissements</h3>
+                            <button class="text-sm text-menfop-blue font-semibold hover:text-blue-800 flex items-center space-x-1 border border-menfop-blue/20 bg-white px-3 py-1.5 rounded shadow-sm">
+                                <i data-lucide="download" class="w-4 h-4"></i>
+                                <span>Exporter CSV</span>
+                            </button>
+                        </div>
+                        <div class="overflow-x-auto custom-scrollbar">
+                            <table class="w-full text-left border-collapse min-w-[800px]">
+                                <thead>
+                                    <tr class="bg-white text-gray-500 text-xs uppercase tracking-wider border-b border-gray-200">
+                                        <th class="px-6 py-4 font-bold">N° École</th>
+                                        <th class="px-6 py-4 font-bold">Nom de l'École</th>
+                                        <th class="px-6 py-4 font-bold">Effectif</th>
+                                        <th class="px-6 py-4 font-bold">Statut Global</th>
+                                        <th class="px-6 py-4 font-bold text-center">Infra.</th>
+                                        <th class="px-6 py-4 font-bold text-center">Péda.</th>
+                                        <th class="px-6 py-4 font-bold text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="school-table-body" class="text-sm text-gray-700 divide-y divide-gray-100 bg-white">
+                                    <!-- Table rows inserted via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PEDAGOGIE TAB -->
+                <div id="pedagogie" class="tab-content space-y-6">
+                    <div class="mb-6">
+                        <h2 class="text-2xl md:text-3xl font-bold text-gray-800">Gestion Pédagogique</h2>
+                        <p class="text-gray-500 mt-1">Performance des élèves, ressources pédagogiques et suivi</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Line Chart -->
+                        <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-bold text-gray-800">Pourcentages d'Admis vs Attendus (Fin de cycle)</h3>
+                                <button class="text-gray-400 hover:text-menfop-blue"><i data-lucide="filter" class="w-5 h-5"></i></button>
+                            </div>
+                            <div class="relative h-80 w-full">
+                                <canvas id="chartPedagogie"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Side Cards -->
+                        <div class="space-y-6">
+                            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                                <h3 class="text-lg font-bold text-gray-800 mb-4 border-b border-gray-100 pb-2">Ressources Pédagogiques</h3>
+                                <div class="grid grid-cols-2 gap-4" id="peda-ratings-container">
+                                    <!-- Ratings inserted via JS -->
+                                </div>
+                            </div>
+                            
+                            <div class="bg-gradient-to-br from-[#1b365d] to-[#2c5282] p-6 rounded-xl shadow-md text-white relative overflow-hidden">
+                                <div class="absolute -right-4 -top-4 opacity-10">
+                                    <i data-lucide="graduation-cap" class="w-32 h-32"></i>
+                                </div>
+                                <div class="relative z-10">
+                                    <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center mb-4 backdrop-blur-sm">
+                                        <i data-lucide="life-buoy" class="w-6 h-6 text-white"></i>
+                                    </div>
+                                    <h3 class="text-lg font-bold mb-2">Dispositif de Soutien</h3>
+                                    <p class="text-sm text-blue-100 mb-5 leading-relaxed">Seulement <strong class="text-white">2 établissements</strong> ont 100% des élèves en difficulté pris en charge de manière formalisée.</p>
+                                    <button class="w-full py-2.5 bg-white text-menfop-blue rounded-lg font-bold text-sm hover:bg-blue-50 transition-colors shadow-sm">
+                                        Voir le rapport détaillé
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ADMIN TAB (Placeholder) -->
+                <div id="admin" class="tab-content">
+                    <div class="flex flex-col items-center justify-center h-[60vh] text-center bg-white rounded-xl border border-gray-200 border-dashed p-8 shadow-sm">
+                        <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-6">
+                            <i data-lucide="settings" class="w-10 h-10 text-gray-400 animate-[spin_4s_linear_infinite]"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-800 mb-2">Gestion Administrative</h3>
+                        <p class="text-gray-500 max-w-md mx-auto mb-8">Le module d'analyse du personnel, de l'assiduité, du dossier des élèves et des Plans de Travail Annuel (PTA) est actuellement en cours d'intégration.</p>
+                        <button onclick="document.querySelector('[data-target=\'overview\']').click()" class="px-6 py-2.5 bg-menfop-blue text-white rounded-lg font-semibold hover:bg-blue-800 transition-colors shadow-sm">
+                            Retour à la vue d'ensemble
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // --- DATA ---
+        const schoolData = [
+            { id: 1, nom: "HAJI HASSAN GOULED", effectif: 850, statut: "Excellent", infrastructure: 3, pedagogie: 3 },
+            { id: 10, nom: "LYCEE ILEYS", effectif: 1200, statut: "Excellent", infrastructure: 3, pedagogie: 2 },
+            { id: 1000, nom: "CEM DE DORRA", effectif: 450, statut: "Moyen", infrastructure: 2, pedagogie: 2 },
+            { id: 1001, nom: "AL HOURIYA", effectif: 600, statut: "Moyen", infrastructure: 2, pedagogie: 1 },
+            { id: 1002, nom: "AMBOULI 1", effectif: 920, statut: "Insuffisant", infrastructure: 1, pedagogie: 2 },
+            { id: 1006, nom: "ARHIBA", effectif: 780, statut: "Moyen", infrastructure: 2, pedagogie: 2 },
+            { id: 1007, nom: "BOULAOS", effectif: 1100, statut: "Excellent", infrastructure: 3, pedagogie: 3 },
+            { id: 1008, nom: "EB EINGUELLA", effectif: 540, statut: "Moyen", infrastructure: 2, pedagogie: 3 },
+            { id: 1010, nom: "GACHAMALE", effectif: 890, statut: "Insuffisant", infrastructure: 1, pedagogie: 1 },
+        ];
+
+        const ratingsConfig = [
+            { label: "Électricité", rating: 3 },
+            { label: "Eau Potable", rating: 2 },
+            { label: "Bibliothèque", rating: 1 },
+            { label: "Cantine", rating: 2 },
+            { label: "Sécurité", rating: 3 },
+            { label: "Double Vac.", rating: 1 },
+            { label: "Connexion", rating: 3 },
+            { label: "Latrines", rating: 2 },
+            { label: "Copieur", rating: 3 },
+            { label: "Vaccination", rating: 2 },
+        ];
+
+        const pedaRatings = [
+            { label: "Ratio Manuels", rating: 3 },
+            { label: "Vol. Horaire", rating: 2 },
+            { label: "Tablettes Num.", rating: 2 },
+            { label: "Soutien", rating: 1 }
+        ];
+
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. Initialize Icons
+            lucide.createIcons();
+
+            // 2. Setup Tab Navigation
+            setupNavigation();
+
+            // 3. Render Dynamic Content
+            renderStarRatings('star-ratings-container', ratingsConfig);
+            renderStarRatings('peda-ratings-container', pedaRatings);
+            renderTable();
+
+            // 4. Initialize Charts
+            initCharts();
+
+            // 5. Mobile Menu Toggle
+            const btn = document.getElementById('mobile-menu-btn');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobile-overlay');
+            
+            function toggleMenu() {
+                sidebar.classList.toggle('-translate-x-full');
+                overlay.classList.toggle('hidden');
+            }
+
+            btn.addEventListener('click', toggleMenu);
+            overlay.addEventListener('click', toggleMenu);
+        });
+
+        // --- NAVIGATION LOGIC ---
+        function setupNavigation() {
+            const navButtons = document.querySelectorAll('.nav-btn');
+            const contents = document.querySelectorAll('.tab-content');
+
+            navButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const targetId = btn.getAttribute('data-target');
+                    
+                    // Reset all buttons
+                    navButtons.forEach(b => {
+                        b.classList.remove('bg-blue-50', 'text-menfop-blue');
+                        b.classList.add('text-gray-600', 'hover:bg-gray-50');
+                        b.querySelector('i').classList.remove('text-menfop-green');
+                        b.querySelector('i').classList.add('text-gray-400');
+                    });
+
+                    // Set active button
+                    btn.classList.add('bg-blue-50', 'text-menfop-blue');
+                    btn.classList.remove('text-gray-600', 'hover:bg-gray-50');
+                    btn.querySelector('i').classList.add('text-menfop-green');
+                    btn.querySelector('i').classList.remove('text-gray-400');
+
+                    // Hide all content, show target
+                    contents.forEach(c => c.classList.remove('active'));
+                    document.getElementById(targetId).classList.add('active');
+
+                    // Close mobile menu if open
+                    if(window.innerWidth < 1024) {
+                        document.getElementById('sidebar').classList.add('-translate-x-full');
+                        document.getElementById('mobile-overlay').classList.add('hidden');
+                    }
+                });
+            });
+        }
+
+        // --- UI RENDERERS ---
+        function renderStarRatings(containerId, data) {
+            const container = document.getElementById(containerId);
+            const colors = {
+                1: '#EF4444', // Red
+                2: '#F59E0B', // Amber
+                3: '#10B981'  // Green
+            };
+            const labels = { 1: 'Insuffisant', 2: 'Moyen', 3: 'Excellent' };
+
+            container.innerHTML = data.map(item => {
+                const color = colors[item.rating];
+                const textLabel = labels[item.rating];
+                
+                let starsHtml = '';
+                for(let i=1; i<=3; i++) {
+                    const fill = i <= item.rating ? color : 'none';
+                    const stroke = i <= item.rating ? color : '#cbd5e1';
+                    starsHtml += `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="${fill}" stroke="${stroke}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-0.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>`;
+                }
+
+                return `
+                    <div class="flex flex-col items-center p-4 bg-gray-50/50 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors">
+                        <div class="flex justify-center mb-2">${starsHtml}</div>
+                        <span class="text-xs font-bold text-gray-700 uppercase tracking-wider text-center truncate w-full">${item.label}</span>
+                        <span class="text-[11px] font-medium mt-1" style="color: ${color}">${textLabel}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('school-table-body');
+            
+            const getStatusBadge = (status) => {
+                if(status === 'Excellent') return `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">Excellent</span>`;
+                if(status === 'Moyen') return `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">Moyen</span>`;
+                return `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-800 border border-red-200">Insuffisant</span>`;
+            };
+
+            const getMiniStars = (rating) => {
+                const color = rating === 3 ? '#10B981' : rating === 2 ? '#F59E0B' : '#EF4444';
+                let html = '<div class="flex justify-center">';
+                for(let i=0; i<3; i++) {
+                    const fill = i < rating ? color : '#e2e8f0';
+                    html += `<svg width="12" height="12" viewBox="0 0 24 24" fill="${fill}" class="mx-[1px]"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>`;
+                }
+                return html + '</div>';
+            };
+
+            tbody.innerHTML = schoolData.map(s => `
+                <tr class="hover:bg-blue-50/50 transition-colors group">
+                    <td class="px-6 py-4 font-semibold text-gray-900">#${s.id}</td>
+                    <td class="px-6 py-4 font-medium text-menfop-blue">${s.nom}</td>
+                    <td class="px-6 py-4 text-gray-600">${s.effectif.toLocaleString()}</td>
+                    <td class="px-6 py-4">${getStatusBadge(s.statut)}</td>
+                    <td class="px-6 py-4">${getMiniStars(s.infrastructure)}</td>
+                    <td class="px-6 py-4">${getMiniStars(s.pedagogie)}</td>
+                    <td class="px-6 py-4 text-right">
+                        <button class="p-1.5 text-gray-400 hover:text-menfop-blue hover:bg-blue-100 rounded transition-colors inline-flex">
+                            <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+            
+            // Re-init icons for new HTML
+            lucide.createIcons();
+        }
+
+        // --- CHART CONFIGURATION ---
+        function initCharts() {
+            // Colors
+            const colorPrimary = '#1b365d';
+            const colorGreen = '#008a4b';
+            const colorExc = '#10B981';
+            const colorMoy = '#F59E0B';
+            const colorIns = '#EF4444';
+
+            Chart.defaults.font.family = "'Inter', 'Segoe UI', sans-serif";
+            Chart.defaults.color = '#64748b';
+
+            // 1. Bar Chart: Effectif
+            new Chart(document.getElementById('chartEffectif'), {
+                type: 'bar',
+                data: {
+                    labels: ['Excellent (Norme)', 'Insuffisant', 'Moyen'],
+                    datasets: [{
+                        label: 'Nombre d\'élèves',
+                        data: [2100, 800, 700],
+                        backgroundColor: [colorExc, colorIns, colorMoy],
+                        borderRadius: 6,
+                        barThickness: 32
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                            titleColor: '#1e293b',
+                            bodyColor: '#475569',
+                            borderColor: '#e2e8f0',
+                            borderWidth: 1,
+                            padding: 12,
+                            boxPadding: 6,
+                            cornerRadius: 8
+                        }
+                    },
+                    scales: {
+                        x: { grid: { color: '#f1f5f9', drawBorder: false } },
+                        y: { grid: { display: false }, ticks: { font: { weight: '600' }, color: '#334155' } }
+                    }
+                }
+            });
+
+            // 2. Stacked Bar: Infrastructures
+            new Chart(document.getElementById('chartInfra'), {
+                type: 'bar',
+                data: {
+                    labels: ['Électricité', 'Eau Potable', 'Bibliothèque', 'Cantine'],
+                    datasets: [
+                        {
+                            label: 'Équipé',
+                            data: [395, 380, 148, 170],
+                            backgroundColor: colorPrimary,
+                            borderRadius: { topLeft: 0, topRight: 0, bottomLeft: 4, bottomRight: 4 },
+                            barThickness: 40
+                        },
+                        {
+                            label: 'Non Équipé',
+                            data: [5, 20, 252, 230],
+                            backgroundColor: '#e2e8f0',
+                            borderRadius: { topLeft: 4, topRight: 4, bottomLeft: 0, bottomRight: 0 },
+                            barThickness: 40
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8 } },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                            titleColor: '#1e293b',
+                            bodyColor: '#475569',
+                            borderColor: '#e2e8f0',
+                            borderWidth: 1,
+                            padding: 12,
+                            boxPadding: 6,
+                            cornerRadius: 8
+                        }
+                    },
+                    scales: {
+                        x: { stacked: true, grid: { display: false }, ticks: { font: { weight: '600' } } },
+                        y: { stacked: true, grid: { color: '#f1f5f9', drawBorder: false } }
+                    }
+                }
+            });
+
+            // 3. Line Chart: Pedagogie
+            new Chart(document.getElementById('chartPedagogie'), {
+                type: 'line',
+                data: {
+                    labels: ['1A', '2A', '3A', '4A', '5A'],
+                    datasets: [
+                        {
+                            label: 'Taux Admis réels (%)',
+                            data: [92, 88, 75, 85, 65],
+                            borderColor: colorGreen,
+                            backgroundColor: colorGreen,
+                            borderWidth: 3,
+                            tension: 0.3,
+                            pointBackgroundColor: colorGreen,
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointRadius: 6,
+                            pointHoverRadius: 8
+                        },
+                        {
+                            label: 'Objectif Attendu (%)',
+                            data: [95, 90, 85, 88, 80],
+                            borderColor: '#94a3b8',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            tension: 0.3,
+                            pointRadius: 0,
+                            pointHoverRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8, padding: 20 } },
+                        tooltip: {
+                            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                            titleColor: '#1e293b',
+                            bodyColor: '#475569',
+                            borderColor: '#e2e8f0',
+                            borderWidth: 1,
+                            padding: 12,
+                            boxPadding: 6,
+                            cornerRadius: 8
+                        }
+                    },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { font: { weight: 'bold' } } },
+                        y: { 
+                            min: 50, max: 100,
+                            grid: { color: '#f1f5f9', drawBorder: false },
+                            ticks: { callback: function(value) { return value + '%' } }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

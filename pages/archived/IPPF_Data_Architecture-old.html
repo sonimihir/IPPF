@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPPF Affiliate Dashboard - Technical & Process Architecture</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- PDF Generation Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        ippf: {
+                            50: '#fff1f1',
+                            100: '#ffe1e1',
+                            500: '#d71920', // Official IPPF Red
+                            600: '#b91218',
+                            700: '#9b0c10',
+                            900: '#5c0003',
+                        },
+                        brand: {
+                            50: '#f0f5ff',
+                            100: '#e0ebff',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        /* Pulse Flow Dot Line */
+        @keyframes flowPulse {
+            0% { stroke-dashoffset: 20; }
+            100% { stroke-dashoffset: 0; }
+        }
+        .animated-flow-line {
+            stroke-dasharray: 6, 4;
+            animation: flowPulse 1.2s linear infinite;
+        }
+        /* Card Expansion Transition Classes */
+        .expandable-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease-in-out, margin-top 0.3s ease-in-out;
+            opacity: 0;
+        }
+        .expanded .expandable-content {
+            max-height: 380px; /* Safe upper limit */
+            opacity: 1;
+            margin-top: 0.75rem;
+        }
+    </style>
+</head>
+<body class="text-slate-800 transition-colors duration-300 min-h-screen flex flex-col">
+
+    <!-- <div class="w-full max-w-[1800px] mx-auto mb-4 flex items-center justify-between no-print">
+        <a href="IPPF_Technical_Proposal.html" class="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-ippfred dark:hover:text-rose-400 transition-colors font-bold text-sm">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+        Go back to IPPF Proposal
+        </a>
+    </div> -->
+
+    <!-- HEADER / NAVIGATION CONTROLS -->
+    <header class="border-b border-slate-200 bg-white px-4 lg:px-8 xl:px-12 py-4 sticky top-0 z-40 shadow-sm">
+        <div class="max-w-[1600px] mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+
+            <!-- IPPF Logo & Proposal Meta -->
+            
+            <div class="flex items-center gap-4">
+                <div class="h-10 w-auto flex items-center justify-center p-1 bg-white border border-slate-100 rounded-lg shadow-sm">
+                    <img src="https://www.ippf.org/themes/ippf_general/ippf-logo-main-red.svg" alt="IPPF Logo" class="h-8 object-contain" onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/d/d4/IPPF_logo.png';">
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="bg-ippf-100 text-ippf-600 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Phase 4 Proposal</span>
+                        <span class="text-[10px] text-slate-500 font-medium">Deliverable Specs</span>
+                    </div>
+                    <h1 id="portalHeaderTitle" class="text-lg font-bold tracking-tight text-slate-900 mt-0.5">Technical Data Architecture</h1>
+                </div>
+            </div>
+            
+            <!-- Main View / Perspective Selector (Toggle between Tech and Biz View) -->
+            <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                <!-- <div class="inline-flex rounded-xl border border-slate-200 p-1 bg-slate-100 text-xs font-semibold shadow-inner">
+                    <button id="viewTechBtn" onclick="switchMainView('tech')" class="px-4 py-2 rounded-lg bg-white text-ippf-600 shadow-sm transition-all flex items-center gap-1.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                        Technical Data Architecture
+                    </button>
+                    <button id="viewBizBtn" onclick="switchMainView('biz')" class="px-4 py-2 rounded-lg text-slate-600 hover:text-slate-900 transition-all flex items-center gap-1.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+                        Business Delivery Approach
+                    </button>
+                </div> -->
+
+                <!-- Export PDF Tool -->
+                <!-- <button onclick="downloadAsPDF()" class="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-ippf-500 bg-ippf-500 hover:bg-ippf-600 text-xs font-semibold text-white transition-all shadow-sm">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                    </svg>
+                    <span>Export PDF</span>
+                </button> -->
+
+                <!-- Live Pipeline Indicator (Only active on tech view) -->
+                <!-- <div id="flowStatusBadge" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-medium text-slate-700">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse inline-block"></span>
+                    <span>Live Refresh Pipelines</span>
+                </div> -->
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN PLATFORM CANVAS (Maximized width constraints) -->
+    <main class="flex-grow max-w-[1600px] w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+        
+        <!-- MAIN VIEW CONTAINER (Left 3 Columns in panoramic view) -->
+        <div class="lg:col-span-3 flex flex-col gap-6 min-w-0">
+            
+            <!-- Presentation instructions banner -->
+            <!-- <div class="bg-slate-900 text-white rounded-xl p-3 px-4 flex items-center justify-between gap-4 text-xs shadow-md">
+                <div class="flex items-center gap-2.5">
+                    <span class="bg-ippf-500 text-white p-1 rounded-md">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"/></svg>
+                    </span>
+                    <span id="instructionBannerText"><strong>Interactive Mode:</strong> Click any source, system, or security card to dynamically expand details inside the diagram and inspect configuration rules.</span>
+                </div>
+                <span class="hidden md:inline-block text-[10px] bg-slate-800 text-slate-300 font-mono px-2 py-0.5 rounded">Adaptive Layout</span>
+            </div> -->
+            <!-- Sub-context banner with Stakeholder reminder -->
+            <!-- <div class="bg-[#FFFCEB] border border-amber-200/80 p-3 rounded-lg flex items-start gap-2.5 text-xs text-amber-900">
+            <svg class="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div>
+                <strong id="banner-title">Illustrative Draft for Presentation:</strong>
+                <span id="banner-text">This design outlines structural suggestions for discussion. Access roles, specific compliance metrics, and opt-in rules will be completely defined during the stakeholder workshops in Part 1.</span>
+            </div>
+            </div> -->
+
+            <!-- ================= TECHNICAL VIEW: DATA ARCHITECTURE ================= -->
+            <div id="technicalViewContainer" class="space-y-6">
+                
+                <!-- THE HIGH-FIDELITY PIPELINE CANVAS -->
+                <div id="techFlowDiagram" class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm overflow-x-auto">
+                    <div class="flex items-stretch justify-between gap-2 min-w-[1000px] relative">
+                        
+                        <!-- COLUMN 1: INGESTION SOURCES (Flexible, Clean Accordion Layout) -->
+                        <div class="w-[24%] flex flex-col gap-3 flex-shrink-0">
+                            <div class="text-xs font-semibold tracking-wider text-slate-400 uppercase flex items-center gap-1.5 mb-1 pl-1">
+                                <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+                                01. Source Layers
+                            </div>
+                            
+                            <!-- APIs Group Container -->
+                            <div class="border border-slate-100 p-2.5 rounded-xl bg-slate-50/50 flex flex-col gap-2">
+                                <span class="text-[9px] font-bold text-slate-400 tracking-wider uppercase px-1">API Integrations</span>
+                                
+                                <!-- DHIS2 -->
+                                <div onclick="selectComponent('dhis2')" id="card-dhis2" class="cursor-pointer group border border-slate-200 bg-white p-3 rounded-xl hover:border-ippf-500 shadow-sm transition-all duration-300 flex flex-col">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-bold text-xs">DHIS2</span>
+                                        <span class="text-[9px] bg-emerald-50 text-emerald-700 font-bold px-1.5 py-0.5 rounded">Core API</span>
+                                    </div>
+                                    <span class="text-[10px] text-slate-500 block mt-0.5">Service Delivery Metrics</span>
+                                    
+                                    <!-- Collapsible inner content -->
+                                    <div class="expandable-content text-[11px] text-slate-600 border-t border-slate-100 pt-2 space-y-1">
+                                        <div class="flex items-center gap-1.5 text-emerald-700 font-medium">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                            <span>Active REST endpoint</span>
+                                        </div>
+                                        <p class="leading-normal text-slate-500">Incremental cron schedules target service delivery records without querying core write databases.</p>
+                                    </div>
+                                </div>
+
+                                <!-- NetSuite -->
+                                <div onclick="selectComponent('netsuite')" id="card-netsuite" class="cursor-pointer group border border-slate-200 bg-white p-3 rounded-xl hover:border-ippf-500 shadow-sm transition-all duration-300 flex flex-col">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-bold text-xs">NetSuite</span>
+                                        <span class="text-[9px] bg-sky-50 text-sky-700 font-bold px-1.5 py-0.5 rounded">ERP Link</span>
+                                    </div>
+                                    <span class="text-[10px] text-slate-500 block mt-0.5">Financials & Grants</span>
+                                    
+                                    <div class="expandable-content text-[11px] text-slate-600 border-t border-slate-100 pt-2 space-y-1">
+                                        <div class="flex items-center gap-1.5 text-sky-700 font-medium">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span>
+                                            <span>SuiteTalk Web Service</span>
+                                        </div>
+                                        <p class="leading-normal text-slate-500">Pulls grant performance logs and budgets dynamically across conformed country dimensions.</p>
+                                    </div>
+                                </div>
+
+                                <!-- Prism -->
+                                <div onclick="selectComponent('prism')" id="card-prism" class="cursor-pointer group border border-slate-200 bg-white p-3 rounded-xl hover:border-ippf-500 shadow-sm transition-all duration-300 flex flex-col">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-bold text-xs">Prism</span>
+                                        <span class="text-[9px] bg-indigo-50 text-indigo-700 font-bold px-1.5 py-0.5 rounded">DB Extract</span>
+                                    </div>
+                                    <span class="text-[10px] text-slate-500 block mt-0.5">Accreditation States</span>
+                                    
+                                    <div class="expandable-content text-[11px] text-slate-600 border-t border-slate-100 pt-2 space-y-1">
+                                        <div class="flex items-center gap-1.5 text-indigo-700 font-medium">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                                            <span>SQL DB Sync Target</span>
+                                        </div>
+                                        <p class="leading-normal text-slate-500">Pulls accreditation reviews periodically, mapping standard codes inside conformed schemas.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Flat Files & Registry Group -->
+                            <div class="border border-slate-100 p-2.5 rounded-xl bg-slate-50/50 flex flex-col gap-2">
+                                <span class="text-[9px] font-bold text-slate-400 tracking-wider uppercase px-1">Flat Files & registries</span>
+                                
+                                <!-- Toggle Header for files group to keep clean visual space -->
+                                <div onclick="toggleSourceFileList()" class="flex items-center justify-between px-1 cursor-pointer hover:text-slate-900 text-slate-500 transition-colors">
+                                    <span class="text-[10px] font-semibold uppercase tracking-wider">Show 5 Flat Files</span>
+                                    <svg id="flatFilesChevron" class="w-3.5 h-3.5 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                                </div>
+
+                                <div id="flatFilesContainer" class="hidden flex-col gap-2 transition-all duration-300">
+                                    <!-- MA Income -->
+                                    <div onclick="selectComponent('ma_income')" id="card-ma_income" class="cursor-pointer border border-slate-200 bg-white p-2.5 rounded-lg hover:border-ippf-500 shadow-sm transition-all flex flex-col">
+                                        <span class="font-bold text-xs text-slate-700">MA Income</span>
+                                        <span class="text-[9px] text-slate-400">Local revenue logs</span>
+                                        <div class="expandable-content text-[10px] text-slate-500 border-t border-slate-100 mt-1 pt-1">Checks schema header alignment dynamically.</div>
+                                    </div>
+
+                                    <!-- UNFPA Commodity -->
+                                    <div onclick="selectComponent('unfpa')" id="card-unfpa" class="cursor-pointer border border-slate-200 bg-white p-2.5 rounded-lg hover:border-ippf-500 shadow-sm transition-all flex flex-col">
+                                        <span class="font-bold text-xs text-slate-700">UNFPA Commodity</span>
+                                        <span class="text-[9px] text-slate-400">Logistics distribution</span>
+                                        <div class="expandable-content text-[10px] text-slate-500 border-t border-slate-100 mt-1 pt-1">Encrypts incoming files using secure keys via SFTP pipelines.</div>
+                                    </div>
+
+                                    <!-- Needs & Resource -->
+                                    <div onclick="selectComponent('needs_resource')" id="card-needs_resource" class="cursor-pointer border border-slate-200 bg-white p-2.5 rounded-lg hover:border-ippf-500 shadow-sm transition-all flex flex-col">
+                                        <span class="font-bold text-xs text-slate-700">Needs & Allocation</span>
+                                        <span class="text-[9px] text-slate-400">Strategic allocations</span>
+                                        <div class="expandable-content text-[10px] text-slate-500 border-t border-slate-100 mt-1 pt-1">Bridges demographic demands directly into Snowflake conformed tables.</div>
+                                    </div>
+
+                                    <!-- Business Planning -->
+                                    <div onclick="selectComponent('biz_planning')" id="card-biz_planning" class="cursor-pointer border border-slate-200 bg-white p-2.5 rounded-lg hover:border-ippf-500 shadow-sm transition-all flex flex-col">
+                                        <span class="font-bold text-xs text-slate-700">Business Planning</span>
+                                        <span class="text-[9px] text-slate-400">Milestone parameters</span>
+                                        <div class="expandable-content text-[10px] text-slate-500 border-t border-slate-100 mt-1 pt-1">Provides baseline targets to compare achievements directly in reports.</div>
+                                    </div>
+
+                                    <!-- Mapping Register -->
+                                    <div onclick="selectComponent('mapping_reg')" id="card-mapping_reg" class="cursor-pointer border border-slate-200 bg-white p-2.5 rounded-lg hover:border-ippf-500 shadow-sm transition-all flex flex-col">
+                                        <span class="font-bold text-xs text-slate-700">Mapping Register</span>
+                                        <span class="text-[9px] text-slate-400">Geo master registry</span>
+                                        <div class="expandable-content text-[10px] text-slate-500 border-t border-slate-100 mt-1 pt-1">Maps local clinics and names to ISO conformed regional standards.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- CONNECTOR INTER-BRIDGE 1 -->
+                        <div class="w-[5%] flex items-center justify-center flex-shrink-0">
+                            <svg class="w-full h-8" viewBox="0 0 60 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M 0 10 L 50 10" stroke="#cbd5e1" stroke-width="2" class="animated-flow-line stroke-slate-300" />
+                                <polygon points="46,6 54,10 46,14" fill="#94a3b8" />
+                            </svg>
+                        </div>
+                        
+                        <!-- COLUMN 2: INTEGRATION (ADF - Collapsible Module) -->
+                        <div class="w-[19%] flex flex-col justify-center flex-shrink-0">
+                            <div class="text-xs font-semibold tracking-wider text-slate-400 uppercase flex items-center gap-1.5 mb-2 pl-1">
+                                <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                                02. Integration
+                            </div>
+                            
+                            <div onclick="selectComponent('adf')" id="card-adf" class="cursor-pointer bg-blue-50/30 border border-blue-200 rounded-2xl p-4 flex flex-col shadow-sm hover:ring-2 hover:ring-blue-500 transition-all duration-300">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="p-1 bg-white rounded-lg border border-blue-100 shadow-sm flex-shrink-0">
+                                        <img src="https://az-icons.com/export/icons/679e395158754f2aa1194eb8a15ec8ec.svg" alt="ADF Logo" class="w-8 h-8 object-contain">
+                                    </div>
+                                    <div>
+                                        <h3 class="font-bold text-xs text-slate-900">Azure Data Factory</h3>
+                                        <span class="text-[8px] text-blue-600 font-bold uppercase tracking-wider block">Orchestrator</span>
+                                    </div>
+                                </div>
+                                <span class="text-[9px] text-slate-500 mt-2 block font-medium">Click to expand ETL workflows & validation</span>
+                                
+                                <!-- Hidden sub-elements, expands on selection -->
+                                <div class="expandable-content space-y-2 border-t border-blue-100/50 pt-3">
+                                    <div class="bg-white border border-slate-150 p-2.5 rounded-lg text-[10px] shadow-xs">
+                                        <span class="font-bold block text-slate-800">Ingestion Protocols</span>
+                                        <span class="text-slate-500 mt-0.5 block leading-normal">Incremental schedules replace manual file assembly tasks.</span>
+                                    </div>
+                                    <div class="bg-white border border-emerald-150 p-2.5 rounded-lg text-[10px] border-l-2 border-l-emerald-500 shadow-xs">
+                                        <span class="font-bold block text-emerald-700">Inline Quality Check</span>
+                                        <span class="text-emerald-600 font-medium mt-0.5 block leading-normal">Enforces validation schema execution prior to database load.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- CONNECTOR INTER-BRIDGE 2 -->
+                        <div class="w-[5%] flex items-center justify-center flex-shrink-0">
+                            <svg class="w-full h-8" viewBox="0 0 60 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M 0 10 L 50 10" stroke="#cbd5e1" stroke-width="2" class="animated-flow-line stroke-slate-300" />
+                                <polygon points="46,6 54,10 46,14" fill="#94a3b8" />
+                            </svg>
+                        </div>
+                        
+                        <!-- COLUMN 3: STORAGE & EDW (SNOWFLAKE - Collapsible Module) -->
+                        <div class="w-[19%] flex flex-col justify-center flex-shrink-0">
+                            <div class="text-xs font-semibold tracking-wider text-slate-400 uppercase flex items-center gap-1.5 mb-2 pl-1">
+                                <span class="w-2 h-2 rounded-full bg-cyan-500"></span>
+                                03. Storage
+                            </div>
+                            
+                            <div onclick="selectComponent('snowflake')" id="card-snowflake" class="cursor-pointer bg-sky-50/20 border border-sky-200 rounded-2xl p-4 flex flex-col shadow-sm hover:ring-2 hover:ring-sky-500 transition-all duration-300">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="p-1 bg-white rounded-lg border border-sky-100 shadow-sm flex-shrink-0">
+                                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTXJFexYScDXPnuNHWQFxkCadM6Du5WrM9vxA&s" alt="Snowflake Logo" class="w-7 h-7 object-contain">
+                                    </div>
+                                    <div>
+                                        <h3 class="font-bold text-xs text-slate-900">Snowflake EDW</h3>
+                                        <span class="text-[8px] text-sky-600 font-bold uppercase tracking-wider block">Unified Hub</span>
+                                    </div>
+                                </div>
+                                <span class="text-[9px] text-slate-500 mt-2 block font-medium">Click to expand data lake model layers</span>
+                                
+                                <div class="expandable-content space-y-2 border-t border-sky-100/50 pt-3 text-[10px]">
+                                    <div class="bg-white border border-slate-100 p-2 rounded-lg flex items-center justify-between shadow-xs">
+                                        <span class="font-semibold text-slate-700">Raw Staging</span>
+                                        <span class="text-[8px] bg-slate-100 px-1.5 py-0.5 rounded font-mono">Bronze</span>
+                                    </div>
+                                    <div class="bg-white border border-slate-100 p-2 rounded-lg flex items-center justify-between shadow-xs">
+                                        <span class="font-semibold text-slate-700">Conformed Stars</span>
+                                        <span class="text-[8px] bg-sky-100 text-sky-800 px-1.5 py-0.5 rounded font-mono">Silver</span>
+                                    </div>
+                                    <div class="bg-white border border-slate-100 p-2 rounded-lg flex items-center justify-between shadow-xs">
+                                        <span class="font-bold text-emerald-800">Governed Model</span>
+                                        <span class="text-[8px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-mono">Gold</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- CONNECTOR INTER-BRIDGE 3 -->
+                        <div class="w-[5%] flex items-center justify-center flex-shrink-0">
+                            <svg class="w-full h-8" viewBox="0 0 60 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M 0 10 L 50 10" stroke="#cbd5e1" stroke-width="2" class="animated-flow-line stroke-slate-300" />
+                                <polygon points="46,6 54,10 46,14" fill="#94a3b8" />
+                            </svg>
+                        </div>
+                        
+                        <!-- COLUMN 4: REPORTING & ANALYTICS (POWER BI - Collapsible Module) -->
+                        <div class="w-[19%] flex flex-col justify-center flex-shrink-0">
+                            <div class="text-xs font-semibold tracking-wider text-slate-400 uppercase flex items-center gap-1.5 mb-2 pl-1">
+                                <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                                04. Reporting
+                            </div>
+                            
+                            <div onclick="selectComponent('powerbi')" id="card-powerbi" class="cursor-pointer bg-amber-50/20 border border-amber-200 rounded-2xl p-4 flex flex-col shadow-sm hover:ring-2 hover:ring-amber-500 transition-all duration-300">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="p-1.5 bg-white rounded-lg border border-amber-100 shadow-sm flex-shrink-0">
+                                        <img src="https://upload.wikimedia.org/wikipedia/commons/c/cf/New_Power_BI_Logo.svg" alt="Power BI Logo" class="w-7 h-7 object-contain">
+                                    </div>
+                                    <div>
+                                        <h3 class="font-bold text-xs text-slate-900">Power BI Portal</h3>
+                                        <span class="text-[8px] text-amber-700 font-bold uppercase tracking-wider block">Visuals Hub</span>
+                                    </div>
+                                </div>
+                                <span class="text-[9px] text-slate-500 mt-2 block font-medium">Click to expand access portal splits</span>
+                                
+                                <div class="expandable-content space-y-2 border-t border-amber-100/50 pt-3 text-[10px]">
+                                    <div class="bg-white border border-slate-150 p-2 rounded-lg shadow-xs leading-normal">
+                                        <span class="font-bold text-slate-700 block">Secretariat Views</span>
+                                        <span class="text-slate-500 mt-0.5 block mt-0.5 leading-relaxed">Continuous global and cross-regional metrics dashboard access.</span>
+                                    </div>
+                                    <div class="bg-white border border-ippf-100 p-2 rounded-lg border-l-2 border-l-ippf-500 shadow-xs leading-normal">
+                                        <span class="font-bold text-ippf-700 block">New Affiliate Portal</span>
+                                        <span class="text-slate-500 mt-0.5 block mt-0.5 leading-relaxed">Dynamic row-restricted metrics optimized for 4 major languages.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- CONNECTOR INTER-BRIDGE 4 -->
+                        <div class="w-[5%] flex items-center justify-center flex-shrink-0">
+                            <svg class="w-full h-8" viewBox="0 0 60 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M 0 10 L 50 10" stroke="#cbd5e1" stroke-width="2" class="animated-flow-line stroke-slate-300" />
+                                <polygon points="46,6 54,10 46,14" fill="#94a3b8" />
+                            </svg>
+                        </div>
+                        
+                        <!-- COLUMN 5: SYSTEM CONSUMERS (Collapsible Modules) -->
+                        <div class="w-[19%] flex flex-col justify-center flex-shrink-0">
+                            <div class="text-xs font-semibold tracking-wider text-slate-400 uppercase flex items-center gap-1.5 mb-2 pl-1">
+                                <span class="w-2 h-2 rounded-full bg-violet-500"></span>
+                                05. Consumer
+                            </div>
+                            
+                            <div class="border border-slate-150 p-2.5 rounded-2xl bg-slate-50/50 flex flex-col gap-2.5">
+                                <!-- Secretariat Users -->
+                                <div onclick="selectComponent('users_secretariat')" id="card-users_secretariat" class="cursor-pointer border border-slate-200 bg-white p-2.5 rounded-xl hover:border-ippf-500 shadow-xs transition-all duration-300 flex flex-col">
+                                    <div class="flex items-center gap-1.5">
+                                        <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                                        <span class="font-bold text-[11px] text-slate-800">Secretariat</span>
+                                    </div>
+                                    <div class="expandable-content text-[10px] text-slate-500 border-t border-slate-100 pt-1.5 leading-normal">
+                                        Logs in seamlessly via pre-existing Active Directory single sign-on (SSO). Renders high-level summaries.
+                                    </div>
+                                </div>
+                                
+                                <!-- Affiliate Users -->
+                                <div onclick="selectComponent('users_affiliates')" id="card-users_affiliates" class="cursor-pointer border border-ippf-100 bg-ippf-50/20 p-2.5 rounded-xl hover:border-ippf-500 shadow-xs transition-all duration-300 flex flex-col">
+                                    <div class="flex items-center gap-1.5">
+                                        <svg class="w-3.5 h-3.5 text-ippf-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                                        <span class="font-bold text-[11px] text-ippf-700">~120 Affiliates</span>
+                                    </div>
+                                    <div class="expandable-content text-[10px] text-slate-500 border-t border-slate-100 pt-1.5 leading-normal">
+                                        Authenticated via Microsoft Entra External ID with strict Row-Level Security rules isolating target country tables.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- CONTROL PLANE (IDENTITY, SECURITY & AZURE PORTAL - Panoramic Layout) -->
+                <div onclick="selectComponent('security_governance')" id="card-security_governance" class="cursor-pointer bg-slate-900 text-white rounded-2xl p-6 shadow-md border border-slate-800 hover:ring-2 hover:ring-ippf-500 transition-all duration-300 flex flex-col md:flex-row gap-6 justify-between items-center">
+                    <div class="flex items-start gap-4">
+                        <div class="bg-slate-800 p-2.5 rounded-xl border border-slate-700 text-amber-400 flex items-center justify-center flex-shrink-0">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Microsoft_Azure.svg" alt="Azure Logo" class="w-6 h-6 object-contain">
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Global Security Control Plane</span>
+                                <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[9px] px-1.5 py-0.5 rounded font-mono font-bold">Secure Access</span>
+                            </div>
+                            <h3 class="text-base font-bold text-white mt-0.5">Control Plane: Microsoft Entra ID & Row-Level Security</h3>
+                            <p class="text-xs text-slate-400 mt-1 max-w-2xl leading-relaxed">Centralized data segregation protocol governing cross-border analytical outputs. Authenticates external endpoints cleanly without cross-border leaks or internal security directory exposure.</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 w-full md:w-auto flex-shrink-0">
+                        <div class="bg-slate-800/80 border border-slate-700 p-4 rounded-xl text-center min-w-[130px]">
+                            <span class="block font-bold text-xs text-slate-200">Entra External ID</span>
+                            <span class="text-[9px] text-slate-400 block mt-0.5">Out-of-Domain Federated IAM</span>
+                        </div>
+                        <div class="bg-slate-800/80 border border-slate-700 p-4 rounded-xl text-center min-w-[130px]">
+                            <span class="block font-bold text-xs text-slate-200">Row-Level Security</span>
+                            <span class="text-[9px] text-slate-400 block mt-0.5">Automated Row Segregation</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= BUSINESS VIEW: DELIVERY APPROACH PROCESS ================= -->
+            <div id="businessViewContainer" class="hidden space-y-6">
+                <!-- PROCESS MAP TIMELINE -->
+                <div id="bizProcessDiagram" class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+                    <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-100 pb-4">
+                        <div>
+                            <span class="text-xs font-bold text-ippf-600 uppercase tracking-widest block">Implementation Strategy</span>
+                            <h2 class="text-base font-bold text-slate-900 mt-0.5">Delivery Approach: 3-Stage End-to-End Roadmap</h2>
+                            <p class="text-xs text-slate-500 mt-1">Indicative timeline: ~26-32 Weeks, delivered with remote governance. Continuous feedback streams are integrated at every step.</p>
+                        </div>
+                        <div class="bg-slate-100 text-slate-800 px-3 py-1 rounded-full text-[10px] font-bold">
+                            Stakeholder Validation Cycle
+                        </div>
+                    </div>
+
+                    <!-- 3 Part Timeline Row Layout (Collapsed state height minimized) -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
+                        
+                        <!-- PART 1: NEEDS ANALYSIS -->
+                        <div onclick="selectProcessPart('part1')" id="card-part1" class="cursor-pointer border border-slate-200 hover:border-ippf-500 rounded-2xl p-5 bg-slate-50/50 transition-all duration-300 flex flex-col justify-between h-auto">
+                            <div>
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="bg-slate-200 text-slate-800 text-[9px] font-bold px-2 py-0.5 rounded-full uppercase">Weeks 10-12</span>
+                                    <span class="w-2.5 h-2.5 rounded-full bg-slate-400 animate-pulse"></span>
+                                </div>
+                                <h3 class="font-bold text-sm text-slate-900">PART 1: Needs Analysis & Functional Spec</h3>
+                                <p class="text-xs text-slate-500 mt-1 mb-3 leading-relaxed">Understand existing system challenges and translate needs across tiers into concrete data models.</p>
+                                
+                                <!-- Small collapsed-to-expanded area -->
+                                <div class="space-y-2 mb-3 expandable-content">
+                                    <div class="bg-white p-2.5 rounded-lg border border-slate-200 text-[11px] shadow-2xs">
+                                        <span class="font-bold text-slate-800 block">Inception Setup</span>
+                                        <span class="text-slate-500">Align with Secretariat domains (PLI, MADDT, IT).</span>
+                                    </div>
+                                    <div class="bg-white p-2.5 rounded-lg border border-slate-200 text-[11px] shadow-2xs">
+                                        <span class="font-bold text-slate-800 block">Consultation Survey</span>
+                                        <span class="text-slate-500">Tiered survey across all ~120 Member Associations.</span>
+                                    </div>
+                                    <div class="bg-white p-2.5 rounded-lg border border-slate-200 text-[11px] shadow-2xs">
+                                        <span class="font-bold text-slate-800 block">Governance Framework</span>
+                                        <span class="text-slate-500">Establish access privileges and sensitive-data schemas.</span>
+                                    </div>
+                                </div>
+                                <span class="collapsed-only-label text-[10px] text-ippf-600 font-semibold block mb-2">Click to expand task breakdowns</span>
+                            </div>
+
+                            <div class="border-t border-slate-200 pt-3 mt-2">
+                                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">KEY DELIVERABLES:</span>
+                                <div class="flex flex-wrap gap-1 mt-1.5">
+                                    <span class="bg-slate-100 text-slate-700 text-[9px] px-2 py-0.5 rounded font-medium border border-slate-200 shadow-2xs">Inception Report</span>
+                                    <span class="bg-slate-100 text-slate-700 text-[9px] px-2 py-0.5 rounded font-medium border border-slate-200 shadow-2xs">Functional Specs</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- PART 2: DEVELOPMENT -->
+                        <div onclick="selectProcessPart('part2')" id="card-part2" class="cursor-pointer border border-slate-200 hover:border-ippf-500 rounded-2xl p-5 bg-slate-50/50 transition-all duration-300 flex flex-col justify-between h-auto">
+                            <div>
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="bg-blue-100 text-blue-800 text-[9px] font-bold px-2 py-0.5 rounded-full uppercase">Weeks 10-12</span>
+                                    <span class="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse"></span>
+                                </div>
+                                <h3 class="font-bold text-sm text-slate-900">PART 2: Development & Build Integration</h3>
+                                <p class="text-xs text-slate-500 mt-1 mb-3 leading-relaxed">Strengthen core environments, deploy security frameworks, and iteratively test views.</p>
+                                
+                                <div class="space-y-2 mb-3 expandable-content">
+                                    <div class="bg-white p-2.5 rounded-lg border border-slate-200 text-[11px] shadow-2xs">
+                                        <span class="font-bold text-blue-800 block">Strengthen Data Layers</span>
+                                        <span class="text-slate-500">Configure ADF, Snowflake and validate schemas.</span>
+                                    </div>
+                                    <div class="bg-white p-2.5 rounded-lg border border-slate-200 text-[11px] shadow-2xs">
+                                        <span class="font-bold text-blue-800 block">Dashboard Production</span>
+                                        <span class="text-slate-500">Implement RLS and deploy Entra External ID endpoints.</span>
+                                    </div>
+                                    <div class="bg-white p-2.5 rounded-lg border border-slate-200 text-[11px] shadow-2xs">
+                                        <span class="font-bold text-blue-800 block">Iterative Prototyping</span>
+                                        <span class="text-slate-500">Verify builds across distinct digital maturity levels.</span>
+                                    </div>
+                                </div>
+                                <span class="collapsed-only-label text-[10px] text-ippf-600 font-semibold block mb-2">Click to expand task breakdowns</span>
+                            </div>
+
+                            <div class="border-t border-slate-200 pt-3 mt-2">
+                                <span class="text-[9px] font-bold text-blue-500 uppercase tracking-wider block">KEY DELIVERABLES:</span>
+                                <div class="flex flex-wrap gap-1 mt-1.5">
+                                    <span class="bg-blue-50 text-blue-700 text-[9px] px-2 py-0.5 rounded font-medium border border-blue-200 shadow-2xs">Implementation Plan</span>
+                                    <span class="bg-blue-50 text-blue-700 text-[9px] px-2 py-0.5 rounded font-medium border border-blue-200 shadow-2xs">Validated Environment</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- PART 3: ROLLOUT & ADOPTION -->
+                        <div onclick="selectProcessPart('part3')" id="card-part3" class="cursor-pointer border border-slate-200 hover:border-ippf-500 rounded-2xl p-5 bg-slate-50/50 transition-all duration-300 flex flex-col justify-between h-auto">
+                            <div>
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="bg-ippf-100 text-ippf-800 text-[9px] font-bold px-2 py-0.5 rounded-full uppercase">Weeks 6-8</span>
+                                    <span class="w-2.5 h-2.5 rounded-full bg-ippf-500 animate-pulse"></span>
+                                </div>
+                                <h3 class="font-bold text-sm text-slate-900">PART 3: Rollout, Training & Adoption</h3>
+                                <p class="text-xs text-slate-500 mt-1 mb-3 leading-relaxed">Deliver localized training, empower digital champions, and anchor platforms sustainably.</p>
+                                
+                                <div class="space-y-2 mb-3 expandable-content">
+                                    <div class="bg-white p-2.5 rounded-lg border border-slate-200 text-[11px] shadow-2xs">
+                                        <span class="font-bold text-ippf-600 block">Maturity-Tiered ToT</span>
+                                        <span class="text-slate-500">Champions act as regional training support structures.</span>
+                                    </div>
+                                    <div class="bg-white p-2.5 rounded-lg border border-slate-200 text-[11px] shadow-2xs">
+                                        <span class="font-bold text-ippf-600 block">Moodle & MA Forum Logs</span>
+                                        <span class="text-slate-500">Distribute assets across working languages.</span>
+                                    </div>
+                                    <div class="bg-white p-2.5 rounded-lg border border-slate-200 text-[11px] shadow-2xs">
+                                        <span class="font-bold text-ippf-600 block">Structured Onboarding</span>
+                                        <span class="text-slate-500">Provide off-line guides for low-bandwidth locations.</span>
+                                    </div>
+                                </div>
+                                <span class="collapsed-only-label text-[10px] text-ippf-600 font-semibold block mb-2">Click to expand task breakdowns</span>
+                            </div>
+
+                            <div class="border-t border-slate-200 pt-3 mt-2">
+                                <span class="text-[9px] font-bold text-ippf-600 uppercase tracking-wider block">KEY DELIVERABLES:</span>
+                                <div class="flex flex-wrap gap-1 mt-1.5">
+                                    <span class="bg-ippf-50 text-ippf-700 text-[9px] px-2 py-0.5 rounded font-medium border border-ippf-200 shadow-2xs">Training Materials</span>
+                                    <span class="bg-ippf-50 text-ippf-700 text-[9px] px-2 py-0.5 rounded font-medium border border-ippf-200 shadow-2xs">Active Dashboard</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- STRATEGIC PRINCIPLES BOARD -->
+                <div class="bg-slate-900 text-white p-6 rounded-2xl flex flex-col md:flex-row justify-between gap-6 items-center">
+                    <div class="space-y-1.5">
+                        <span class="text-[10px] uppercase tracking-wider text-slate-400 font-bold block">Cross-cutting Quality Framework</span>
+                        <h3 class="text-base font-bold">Continuous Feedback Loop & Governance Safeguards</h3>
+                        <p class="text-xs text-slate-300 max-w-2xl leading-relaxed">Every milestone incorporates iterative review cycles. No critical structural or visual database model modification is deployed without direct consultation with targeted Affiliate stakeholders.</p>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0 bg-slate-800 p-3 rounded-xl border border-slate-700">
+                        <svg class="w-5 h-5 text-ippf-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                        <span class="text-xs font-semibold">Active Risk Registers maintained from Day 1.</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PROPOSAL ASSUMPTIONS BOARD -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-white border border-slate-200 p-4 rounded-xl text-xs shadow-sm">
+                    <h4 class="font-bold text-slate-900 flex items-center gap-2 mb-2">
+                        <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        Federation Alignment Approach
+                    </h4>
+                    <p class="text-slate-600 leading-relaxed">
+                        Part 1 features a structured Needs Analysis. Segmenting Affiliates by digital capabilities ensures simple dashboards for lower-maturity clinics while preserving analytical capabilities for high-maturity offices.
+                    </p>
+                </div>
+                <div class="bg-white border border-slate-200 p-4 rounded-xl text-xs shadow-sm">
+                    <h4 class="font-bold text-slate-900 flex items-center gap-2 mb-2">
+                        <svg class="w-4 h-4 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                        Hosting Ownership
+                    </h4>
+                    <p class="text-slate-600 leading-relaxed">
+                        By integrating Azure and Snowflake directly into pre-existing IPPF environments, your teams retain full workspace administrative ownership. No proprietary third-party lock-ins or additional middleware are needed.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- DETAIL SPEC PANEL (Right Column - Anchored Spec Inspector) -->
+        <div class="lg:col-span-1 flex flex-col gap-4">
+            
+            <div id="detailPanel" class="bg-white border border-slate-200 rounded-2xl p-5 sticky top-24 shadow-sm transition-all flex flex-col gap-4 min-h-[550px]">
+                
+                <!-- Initial Empty State -->
+                <div id="panelEmptyState" class="flex-grow flex flex-col justify-center items-center text-center p-6">
+                    <div class="bg-slate-100 p-3 rounded-full text-slate-400 mb-3">
+                        <svg class="w-8 h-8 text-ippf-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"/></svg>
+                    </div>
+                    <h3 class="font-bold text-sm text-slate-900">Interactive Inspector</h3>
+                    <p id="inspectorHelpText" class="text-xs text-slate-500 mt-2 leading-relaxed">
+                        Click on any source system, integration card, or delivery phase block to inspect its complete configurations and milestones.
+                    </p>
+                </div>
+
+                <!-- Dynamic Data Population Area -->
+                <div id="panelContent" class="hidden flex-col gap-4 h-full">
+                    <div class="flex items-start justify-between border-b border-slate-100 pb-3">
+                        <div>
+                            <span id="panelTag" class="text-[9px] font-bold text-ippf-600 uppercase tracking-widest block">SPECIFICATION</span>
+                            <h2 id="panelTitle" class="text-sm font-bold text-slate-900 mt-0.5">Component Title</h2>
+                        </div>
+                        <button onclick="closeInspector()" class="text-slate-400 hover:text-slate-600 transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+                    </div>
+
+                    <!-- Tech Spec Data Body -->
+                    <div class="flex-grow overflow-y-auto space-y-4 pr-1 text-xs">
+                        <div class="space-y-1">
+                            <span id="roleLabel" class="text-[10px] text-slate-400 font-bold uppercase block">Core Role & Function</span>
+                            <p id="panelFunction" class="text-slate-700 leading-relaxed">Function details go here.</p>
+                        </div>
+
+                        <!-- Technical Specifics (Shown when Tech is chosen) -->
+                        <div id="techDetailsSection" class="space-y-3 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                            <span class="text-[10px] text-ippf-600 font-bold uppercase tracking-wide block">Platform Configurations</span>
+                            
+                            <div class="grid grid-cols-2 gap-2 text-[11px]">
+                                <div>
+                                    <span class="text-[10px] text-slate-400 block">Integration Sync</span>
+                                    <span id="specMethod" class="font-semibold text-slate-800 block">Standard REST API</span>
+                                </div>
+                                <div>
+                                    <span class="text-[10px] text-slate-400 block">Landing Zone</span>
+                                    <span id="specRefresh" class="font-semibold text-slate-800 block">Snowflake Stage</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Strategic Guardrails / Details -->
+                        <div class="space-y-2">
+                            <span id="guidelineLabel" class="text-[10px] text-slate-400 font-bold uppercase block">Implementation Milestones</span>
+                            <ul id="panelGuardrails" class="space-y-1.5 list-disc list-inside text-slate-600 leading-normal">
+                                <!-- Dynamic items -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-slate-200 bg-white py-6 px-6 lg:px-12 mt-auto text-xs">
+        <div class="max-w-[1600px] mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-slate-500">
+            <div>
+                <span>Prepared by <strong>Mihir Soni</strong> for the IPPF Affiliate Dashboard Proposal.</span>
+            </div>
+            <div class="flex items-center gap-4 font-medium text-slate-600">
+                <span>Indicative Timeline: ~26-32 Weeks</span>
+                <span class="text-slate-300">|</span>
+                <span>Active Collaboration Environment</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- INTERACTIVE SCRIPT LOGIC -->
+    <script>
+        let currentView = 'tech'; // 'tech' or 'biz'
+        let selectedElementId = null;
+        let showFlatFiles = false;
+
+        // Registry representing the comprehensive technical architecture data
+        const componentRegistry = {
+            'dhis2': {
+                title: 'DHIS2 API Integration',
+                tag: 'Core Source Layer',
+                function: 'Hosts local medical, service outcome, and regional healthcare clinic data points. Connects directly to Azure Data Factory REST endpoints.',
+                method: 'REST JSON API Endpoint',
+                refresh: 'Snowflake Bronze Zone',
+                guardrails: [
+                    'Schedules daily incremental query streams based on last-sync timestamps.',
+                    'Separates write queries completely from reporting workloads to ensure local clinic operations never experience pipeline latency.',
+                    'Automatically handles dynamic data paging constraints over high-volume queries.'
+                ]
+            },
+            'netsuite': {
+                title: 'NetSuite Financials Link',
+                tag: 'Core Source Layer',
+                function: 'Primary accounting module containing regional grant allocations, operational budgets, and financial records.',
+                method: 'SuiteTalk Web Services',
+                refresh: 'Snowflake Financial Stage',
+                guardrails: [
+                    'Enforces secure token-based access schemas for secure transmission.',
+                    'Extracts and matches currency rates against mapped country dimension tables.',
+                    'Complies with IPPF audit compliance workflows for public-donor accounting.'
+                ]
+            },
+            'prism': {
+                title: 'Prism Database Sync',
+                tag: 'Core Source Layer',
+                function: 'Houses Member Association capabilities, accreditation evaluations, and regional operational status scores.',
+                method: 'SQL Server DB Pipeline',
+                refresh: 'Snowflake Accreditation Zone',
+                guardrails: [
+                    'Runs weekly incremental checks targeting newly updated status rows.',
+                    'Converts internal classification structures into standardized conformed metrics in Snowflake Silver.'
+                ]
+            },
+            'ma_income': {
+                title: 'MA Income Datasets',
+                tag: 'Flat Files / CSV Uploads',
+                function: 'Local country revenue spreadsheets representing decentralized affiliate financials.',
+                method: 'Azure Secure Container Ingest',
+                refresh: 'Snowflake Staging Area',
+                guardrails: [
+                    'Validates column structure against schema templates before moving files.',
+                    'Archives uploaded worksheets in a secure Blob history container for audit safety.'
+                ]
+            },
+            'unfpa': {
+                title: 'UNFPA Commodities Ingestion',
+                tag: 'Flat Files / CSV Uploads',
+                function: 'Tracks commodity logistics, birth-control allocations, and medicinal supply levels.',
+                method: 'Encrypted SFTP Intake',
+                refresh: 'Snowflake Logistics Stage',
+                guardrails: [
+                    'Uses secure key exchanges for SFTP path handshakes.',
+                    'Unifies commodity SKUs into standardized medical supply dimensions.'
+                ]
+            },
+            'needs_resource': {
+                title: 'Needs & Allocation reference data',
+                tag: 'Strategic Files',
+                function: 'Reference indicators detailing geographical requirements versus program budgets.',
+                method: 'Blob Storage Sync',
+                refresh: 'Snowflake Metadata Area',
+                guardrails: [
+                    'Maps strategic requirements against geographic spatial dimensions.',
+                    'Ensures values are immutable once approved by regional boards.'
+                ]
+            },
+            'biz_planning': {
+                title: 'Business Planning targets',
+                tag: 'Strategic Files',
+                function: 'Annual goals and performance milestones utilized to assess year-over-year achievements.',
+                method: 'Azure File Service Link',
+                refresh: 'Snowflake Goals Zone',
+                guardrails: [
+                    'Merges strategic targets directly with active indicator dimensions.',
+                    'Stores historic annual targets to prevent backdated metric adjustments.'
+                ]
+            },
+            'mapping_reg': {
+                title: 'Mapping Registry',
+                tag: 'Geospatial Metadata',
+                function: 'Geospatial coordinates mapping disparate municipalities, clinics, and countries into unified indices.',
+                method: 'Active Metadata Pipeline',
+                refresh: 'Snowflake Master Dim',
+                guardrails: [
+                    'Acts as the master coordinate directory resolving naming variances.',
+                    'Maintains standard spatial coordinates for global Power BI map rendering.'
+                ]
+            },
+            'adf': {
+                title: 'Azure Data Factory (ADF)',
+                tag: 'Platform Orchestration',
+                function: 'Cloud orchestration and pipelined computing engine. Manages pipeline workflows from ingestion to quality validation.',
+                method: 'SaaS Cloud Pipelines',
+                refresh: 'Azure Storage & Snowflake',
+                guardrails: [
+                    'Enforces automatic file compliance audits before writing to Snowflake staging.',
+                    'Isolates scheduling queues to avoid overlapping load conflicts.',
+                    'Secures transit endpoints utilizing TLS 1.3 encryption standards.'
+                ]
+            },
+            'snowflake': {
+                title: 'Snowflake Enterprise Data Warehouse',
+                tag: 'Platform Storage & DW',
+                function: 'Highly scalable enterprise storage. Utilizes decoupled query compute layers so heavy modeling tasks never slow dashboards.',
+                method: 'Structured SQL Engine',
+                refresh: 'Multi-tiered Schemas',
+                guardrails: [
+                    'Bronze-Silver-Gold structural modeling protects unprocessed source histories.',
+                    'Applies conformed dimensions across all integrated sources.',
+                    'Enforces detailed data lineage tracking to guarantee trace audits.'
+                ]
+            },
+            'powerbi': {
+                title: 'Power BI Portal',
+                tag: 'Platform Analytics',
+                function: 'Enterprise visualization portal. Renders secure dashboards and supports multi-language schemas.',
+                method: 'DirectQuery / Import Hybrid',
+                refresh: 'Automated Cache Refreshes',
+                guardrails: [
+                    'Secured by dynamic Row-Level Security based on Entra ID parameters.',
+                    'Isolates affiliate dashboard environments to prevent cross-border data leakage.',
+                    'Dynamically translates dashboard metrics into English, French, Spanish, and Arabic.'
+                ]
+            },
+            'users_secretariat': {
+                title: 'Secretariat Analytics Access',
+                tag: 'System Consumer',
+                function: 'Global and regional managers who utilize cross-country analytics to coordinate strategic targets.',
+                method: 'IPPF Enterprise Single Sign-On',
+                refresh: 'Global Permissions Schema',
+                guardrails: [
+                    'Secures access using corporate multi-factor authentication (MFA).',
+                    'Provides full cross-federation visualization over anonymized metrics.'
+                ]
+            },
+            'users_affiliates': {
+                title: 'Affiliate Board Access',
+                tag: 'System Consumer',
+                function: 'Over 120 Member Associations logging in to check regional clinic operations and benchmark performance.',
+                method: 'Microsoft Entra External ID',
+                refresh: 'Segmented Affiliate Schema',
+                guardrails: [
+                    'Restricts data to the logged-in user\'s country via active Row-Level Security filters.',
+                    'Anonymizes benchmarking data to prevent competitive privacy leaks.'
+                ]
+            },
+            'security_governance': {
+                title: 'Access Control & Security Plane',
+                tag: 'Control Plane Systems',
+                function: 'Comprehensive platform security framework spanning ingestion workflows, access management, and query logging.',
+                method: 'Microsoft Entra & RLS',
+                refresh: 'Real-time Identity Check',
+                guardrails: [
+                    'Uses Microsoft Entra External ID to securely authenticate external users without internal domain risks.',
+                    'Strict Row-Level Security logic dynamically partitions dashboards.',
+                    'Generates audit logs to track unauthorized data export attempts.'
+                ]
+            }
+        };
+
+        // Registry representing the Business Process / Deliverables approach data
+        const processRegistry = {
+            'part1': {
+                title: 'PART 1: Needs Analysis & Functional Spec',
+                tag: 'Timeline: Weeks 10-12',
+                function: 'Lays the logical foundation. Focuses on aligning with Secretariat domains, assessing current environments, and establishing security rules.',
+                method: 'Stakeholder Consultation',
+                refresh: 'Analysis & Specs Phase',
+                guardrails: [
+                    'Inception Setup: Initial alignment with PLI, MADDT, and IT domains.',
+                    'Tiered Consultation Survey: Survey all ~120 Member Associations, backed by targeted deep-dive interviews.',
+                    'Indicators & Journeys: Define and prioritize use cases, target indicators, and data domains.',
+                    'Governance Framework: Define access structures, benchmarking models, and secure data handling guidelines.'
+                ]
+            },
+            'part2': {
+                title: 'PART 2: Development & Build Integration',
+                tag: 'Timeline: Weeks 10-12',
+                function: 'Builds, schedules, and validates core pipelines. Focuses on configuring integration schemas, designing model layers, and deploying security partitions.',
+                method: 'Agile Implementation',
+                refresh: 'Platform Ingestion Phase',
+                guardrails: [
+                    'Implementation Planning: Structure sprints against existing Azure & Snowflake infrastructure.',
+                    'Strengthen Environment: Establish Azure Data Factory schedules and refine Snowflake conformed modeling structures.',
+                    'Dashboard Construction: Build localized Power BI dashboards and activate Row-Level Security patterns.',
+                    'User Prototyping: Conduct structured feedback loops across distinct digital maturity levels before launching.'
+                ]
+            },
+            'part3': {
+                title: 'PART 3: Rollout, Training & Adoption',
+                tag: 'Timeline: Weeks 6-8',
+                function: 'Prepares local clinics to adopt and leverage metrics. Focuses on training coordinators, building tutorials, and supporting adoption.',
+                method: 'Change Management & Training',
+                refresh: 'User Onboarding Phase',
+                guardrails: [
+                    'Maturity-Tiered ToT: Certify regional Digital Champions to act as peer-to-peer technical anchors.',
+                    'Moodle & Academy Material: Launch role-based training assets in EN, FR, ES, and AR.',
+                    'Structured Onboarding: Host self-paced learning and webinars, providing offline-friendly guides for low-bandwidth sites.',
+                    'Adoption Feedback Loop: Deliver extended post-launch support to resolve performance and usability questions.'
+                ]
+            }
+        };
+
+        // Toggle visibility of flat files list
+        function toggleSourceFileList() {
+            showFlatFiles = !showFlatFiles;
+            const container = document.getElementById('flatFilesContainer');
+            const chevron = document.getElementById('flatFilesChevron');
+            
+            if (showFlatFiles) {
+                container.classList.remove('hidden');
+                container.classList.add('flex');
+                chevron.classList.add('rotate-180');
+            } else {
+                container.classList.add('hidden');
+                container.classList.remove('flex');
+                chevron.classList.remove('rotate-180');
+            }
+        }
+
+        // Switch Main View (Toggle between Technical Diagram and Business Timeline)
+        function switchMainView(mode) {
+            currentView = mode;
+            const techBtn = document.getElementById('viewTechBtn');
+            const bizBtn = document.getElementById('viewBizBtn');
+            const techContainer = document.getElementById('technicalViewContainer');
+            const bizContainer = document.getElementById('businessViewContainer');
+            const flowBadge = document.getElementById('flowStatusBadge');
+            const bannerText = document.getElementById('instructionBannerText');
+            const headerTitle = document.getElementById('portalHeaderTitle');
+
+            if (mode === 'tech') {
+                techBtn.className = "px-4 py-2 rounded-lg bg-white text-ippf-600 shadow-sm transition-all flex items-center gap-1.5";
+                bizBtn.className = "px-4 py-2 rounded-lg text-slate-600 hover:text-slate-900 transition-all flex items-center gap-1.5";
+                
+                techContainer.classList.remove('hidden');
+                bizContainer.classList.add('hidden');
+                flowBadge.classList.remove('hidden');
+                
+                headerTitle.textContent = "Technical Data Architecture Portal";
+                bannerText.innerHTML = "<strong>Interactive Mode:</strong> Click any source, system, or security card to dynamically expand details inside the diagram and inspect configuration rules. Click again to collapse.";
+            } else {
+                bizBtn.className = "px-4 py-2 rounded-lg bg-white text-ippf-600 shadow-sm transition-all flex items-center gap-1.5";
+                techBtn.className = "px-4 py-2 rounded-lg text-slate-600 hover:text-slate-900 transition-all flex items-center gap-1.5";
+                
+                bizContainer.classList.remove('hidden');
+                techContainer.classList.add('hidden');
+                flowBadge.classList.add('hidden');
+                
+                headerTitle.textContent = "Business Delivery Approach Portal";
+                bannerText.innerHTML = "<strong>Roadmap Inspector:</strong> Click any phase of the delivery process (Part 1, 2, or 3) to view key execution tasks, milestones, and deliverables in the sidebar. Click again to collapse.";
+            }
+
+            closeInspector();
+        }
+
+        // Technical Component Selection
+        function selectComponent(id) {
+            if (selectedElementId === id) {
+                closeInspector();
+                return;
+            }
+            
+            clearHighlights();
+            selectedElementId = id;
+
+            const card = document.getElementById(`card-${id}`);
+            if (card) {
+                card.classList.add('ring-2', 'ring-ippf-500', 'border-ippf-500', 'expanded');
+            }
+
+            renderDetails(id, componentRegistry);
+        }
+
+        // Business Process Part Selection
+        function selectProcessPart(id) {
+            if (selectedElementId === id) {
+                closeInspector();
+                return;
+            }
+
+            clearHighlights();
+            selectedElementId = id;
+
+            const card = document.getElementById(`card-${id}`);
+            if (card) {
+                card.classList.add('ring-2', 'ring-ippf-500', 'border-ippf-500', 'expanded');
+                
+                // Hide collapsed guide indicators
+                const indicator = card.querySelector('.collapsed-only-label');
+                if (indicator) indicator.classList.add('hidden');
+            }
+
+            renderDetails(id, processRegistry);
+        }
+
+        // Render Details in Dynamic Sidebar
+        function renderDetails(id, registry) {
+            const data = registry[id];
+            if (!data) return;
+
+            document.getElementById('panelEmptyState').classList.add('hidden');
+            document.getElementById('panelContent').classList.remove('hidden');
+            document.getElementById('panelContent').classList.add('flex');
+
+            document.getElementById('panelTitle').textContent = data.title;
+            document.getElementById('panelTag').textContent = data.tag;
+            document.getElementById('panelFunction').textContent = data.function;
+
+            // Labels switch based on perspective
+            if (currentView === 'tech') {
+                document.getElementById('roleLabel').textContent = 'Core Role & Function';
+                document.getElementById('guidelineLabel').textContent = 'Architectural Guardrails';
+                document.getElementById('specMethod').textContent = data.method;
+                document.getElementById('specRefresh').textContent = data.refresh;
+                document.getElementById('techDetailsSection').classList.remove('hidden');
+            } else {
+                document.getElementById('roleLabel').textContent = 'Phase Objective';
+                document.getElementById('guidelineLabel').textContent = 'Execution Tasks';
+                document.getElementById('techDetailsSection').classList.add('hidden');
+            }
+
+            // Render Dynamic list items
+            const ul = document.getElementById('panelGuardrails');
+            ul.innerHTML = '';
+            data.guardrails.forEach(item => {
+                const li = document.createElement('li');
+                li.className = "text-slate-600 leading-normal pl-1 py-0.5";
+                li.textContent = item;
+                ul.appendChild(li);
+            });
+        }
+
+        // Helper to remove ring selections and collapse open elements
+        function clearHighlights() {
+            if (selectedElementId) {
+                const card = document.getElementById(`card-${selectedElementId}`);
+                if (card) {
+                    card.classList.remove('ring-2', 'ring-ippf-500', 'border-ippf-500', 'expanded');
+                    
+                    const indicator = card.querySelector('.collapsed-only-label');
+                    if (indicator) indicator.classList.remove('hidden');
+                }
+            }
+            selectedElementId = null;
+        }
+
+        // Reset details panel to default empty state
+        function closeInspector() {
+            clearHighlights();
+            
+            document.getElementById('panelEmptyState').classList.remove('hidden');
+            document.getElementById('panelContent').classList.add('hidden');
+            document.getElementById('panelContent').classList.remove('flex');
+            
+            // Adjust help text based on current perspective view
+            const helpText = document.getElementById('inspectorHelpText');
+            if (currentView === 'tech') {
+                helpText.textContent = "Click on any source system or integration layer in the diagram to inspect its functional configurations and specifications.";
+            } else {
+                helpText.textContent = "Click on any phase (Part 1, Part 2, or Part 3) to view key milestones, delivery sprints, and regional training strategies in the sidebar.";
+            }
+        }
+
+        // PDF Generation Engine - Temporarily expands all modules before print
+        function downloadAsPDF() {
+            const view = currentView;
+            const targetContainerId = view === 'tech' ? 'techFlowDiagram' : 'bizProcessDiagram';
+            const targetElement = document.getElementById(targetContainerId);
+            
+            if (!targetElement) return;
+
+            // Cache active selections and state before forcing print expand rules
+            const cachedSelectedId = selectedElementId;
+            const cachedFlatFiles = showFlatFiles;
+            
+            // Collect all collapsible components within the diagram target scope
+            const allExpandableCards = targetElement.querySelectorAll('.cursor-pointer');
+            allExpandableCards.forEach(card => {
+                card.classList.add('expanded');
+                const label = card.querySelector('.collapsed-only-label');
+                if (label) label.classList.add('hidden');
+            });
+
+            // If tech, force reveal the flat files container completely
+            const flatFilesContainer = document.getElementById('flatFilesContainer');
+            const flatFilesChevron = document.getElementById('flatFilesChevron');
+            if (view === 'tech' && flatFilesContainer) {
+                flatFilesContainer.classList.remove('hidden');
+                flatFilesContainer.classList.add('flex');
+                if (flatFilesChevron) flatFilesChevron.classList.add('rotate-180');
+            }
+
+            // Target print configuration rules
+            const opt = {
+                margin:       8,
+                filename:     view === 'tech' ? 'ippf_technical_data_architecture.pdf' : 'ippf_delivery_roadmap_process.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, scrollY: 0 },
+                jsPDF:        { unit: 'mm', format: 'a3', orientation: 'landscape' }
+            };
+
+            // Run PDF compile, then seamlessly revert workspace back to baseline state
+            html2pdf().set(opt).from(targetElement).save().then(() => {
+                // Remove universal expand styles
+                allExpandableCards.forEach(card => {
+                    // Check if the component was intentionally selected by user before printing
+                    if (card.id !== `card-${cachedSelectedId}`) {
+                        card.classList.remove('expanded');
+                        const label = card.querySelector('.collapsed-only-label');
+                        if (label) label.classList.remove('hidden');
+                    }
+                });
+
+                // Revert flat files back to user's pre-print view
+                if (view === 'tech' && !cachedFlatFiles && flatFilesContainer) {
+                    flatFilesContainer.classList.add('hidden');
+                    flatFilesContainer.classList.remove('flex');
+                    if (flatFilesChevron) flatFilesChevron.classList.remove('rotate-180');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mihir Soni - IPPF Resume</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+        .resume-container {
+            max-width: 210mm;
+            margin: 2rem auto;
+            background: white;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            padding: 50px 60px;
+        }
+        .section-title {
+            border-bottom: 2px solid #1e3a8a;
+            color: #1e3a8a;
+            padding-bottom: 0.25rem;
+            margin-bottom: 1rem;
+            margin-top: 1.5rem;
+            font-weight: 700;
+            font-size: 1.125rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .experience-item, .project-item {
+            page-break-inside: avoid;
+        }
+        .skill-row {
+            display: grid;
+            grid-template-columns: 125px 1fr;
+            gap: 12px;
+            margin-bottom: 0.45rem;
+        }
+        .project-label {
+            font-weight: 700;
+            color: #111827;
+        }
+        @media print {
+            body { background-color: white; margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .resume-container { box-shadow: none; margin: 0; padding: 10px 20px; max-width: 100%; }
+            .no-print { display: none !important; }
+            .section-title { color: #1e3a8a !important; border-bottom-color: #1e3a8a !important; }
+            h3, h4 { page-break-after: avoid; }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- <div class="fixed top-6 right-6 no-print z-50">
+        <button onclick="window.print()" class="bg-blue-700 hover:bg-blue-800 text-white font-semibold py-2 px-4 rounded-lg shadow-lg flex items-center gap-2 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+            Print to PDF
+        </button>
+    </div> -->
+
+    <div class="resume-container">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-900 tracking-tight uppercase">Mihir Soni</h1>
+            <h2 class="text-lg text-blue-800 font-semibold mt-2 uppercase tracking-wide">Business Intelligence Lead | Stakeholder Consultation</h2>
+            <div class="flex flex-wrap justify-center items-center gap-x-5 gap-y-2 mt-4 text-sm text-gray-600 font-medium">
+                <!-- <span class="flex items-center gap-1.5">
+                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    New Delhi, India
+                </span> -->
+                <span class="flex items-center gap-1.5">
+                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                    +91 96679 53694
+                </span>
+                <span class="flex items-center gap-1.5">
+                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                    <a href="mailto:mihirsoni0812@gmail.com" class="hover:text-blue-700 transition">mihirsoni0812@gmail.com</a>
+                </span>
+                <span class="flex items-center gap-1.5">
+                    <svg class="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                    <a href="https://linkedin.com/in/mihirsoni0812" target="_blank" class="hover:text-blue-700 transition">linkedin.com/in/mihirsoni0812</a>
+                </span>
+            </div>
+        </header>
+
+        <section>
+            <h3 class="section-title mt-0">Profile</h3>
+            <p class="text-sm leading-relaxed text-gray-700 text-justify">
+                Business Intelligence Lead with 5+ years delivering enterprise analytics and Power BI dashboard platforms across the full project lifecycle: stakeholder consultation and requirements gathering, data modeling and dashboard development, user training, and post-deployment maintenance. I have led national-scale, multilingual, multi-domain dashboards for a central body monitoring hundreds of distributed units, including a fully French-language performance-monitoring platform for a national government ministry. My experience spans healthcare service-delivery analytics, public-sector performance monitoring, and multi-domain enterprise platforms, delivered for clients across Africa, the Middle East, Europe, and the UK. Unlike consultants who only build, I own the entire arc from needs analysis through rollout and adoption, the same lifecycle this assignment requires.
+            </p>
+        </section>
+
+        <section>
+            <h3 class="section-title">Relevance to this Assignment</h3>
+            <ul class="list-none text-sm text-gray-700 space-y-1.5 ml-1">
+                <li class="relative pl-4 before:content-['•'] before:absolute before:left-0 before:text-blue-600 before:font-bold"><strong class="text-gray-900">Federated, multi-unit monitoring:</strong> led a national dashboard tracking 400+ distributed units for a central ministry, directly analogous to a Secretariat monitoring Affiliates across a global federation.</li>
+                <li class="relative pl-4 before:content-['•'] before:absolute before:left-0 before:text-blue-600 before:font-bold"><strong class="text-gray-900">Multilingual delivery:</strong> built and delivered a complete dashboard in French for a francophone client, demonstrating real multilingual capability.</li>
+                <li class="relative pl-4 before:content-['•'] before:absolute before:left-0 before:text-blue-600 before:font-bold"><strong class="text-gray-900">Full lifecycle, including the 30%-weighted rollout:</strong> personally delivered requirements gathering, design and build, user training, and ongoing maintenance, not just development.</li>
+                <li class="relative pl-4 before:content-['•'] before:absolute before:left-0 before:text-blue-600 before:font-bold"><strong class="text-gray-900">Comparative performance benchmarking:</strong> designed standardized performance-rating models enabling at-a-glance comparison across distributed units.</li>
+                <li class="relative pl-4 before:content-['•'] before:absolute before:left-0 before:text-blue-600 before:font-bold"><strong class="text-gray-900">Lower-resource contexts:</strong> delivered for settings with limited infrastructure, including schools without electricity, water, or connectivity, mirroring the operating realities of many Affiliates.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h3 class="section-title">Core Skills</h3>
+            <div class="text-sm text-gray-700 leading-relaxed">
+                <div class="skill-row"><div class="font-bold text-gray-900">BI &amp; Reporting</div><div>Power BI (Desktop, Service, Embedded, Paginated Reports), DAX, Power Query (M), Data Modeling, Microsoft Fabric, SSRS, SSAS</div></div>
+                <div class="skill-row"><div class="font-bold text-gray-900">Data &amp; Cloud</div><div>SQL, T-SQL, Azure Data Factory, Azure Synapse, OneLake, Snowflake, Data Warehousing, Star/Snowflake Schema, ETL</div></div>
+                <div class="skill-row"><div class="font-bold text-gray-900">Delivery</div><div>Requirements Gathering, Stakeholder Consultation, User Training &amp; Train-the-Trainer, Solution Architecture, Agile Delivery, Maintenance &amp; Support</div></div>
+                <div class="skill-row"><div class="font-bold text-gray-900">Programming</div><div>Python (Pandas, NumPy), R, Power Automate, Power Apps</div></div>
+                <div class="skill-row"><div class="font-bold text-gray-900">Languages</div><div>English (Proficient), Hindi (Native)</div></div>
+            </div>
+        </section>
+
+        <section>
+            <h3 class="section-title">Relevant Project Experience</h3>
+
+            <div class="project-item mb-5">
+                <h4 class="font-bold text-gray-900 text-[15px]">National Education Ministry - Public-Sector Performance Monitoring</h4>
+                <div class="text-sm text-blue-800 italic font-medium mb-2">Francophone East Africa (Djibouti) | Power BI Lead Developer | Full lifecycle</div>
+                <p class="text-sm text-gray-700 leading-relaxed mb-1"><span class="project-label">Context.</span> A national education ministry needed to monitor and benchmark performance across 400+ schools spanning hugely varied operating contexts, from well-resourced urban institutions to remote schools without electricity, water, or connectivity.</p>
+                <p class="text-sm text-gray-700 leading-relaxed mb-1"><span class="project-label">Role &amp; delivery.</span> As Power BI Lead Developer, I led end-to-end delivery: requirements gathering with ministry stakeholders, dashboard design and build, and training of ministry users. Built a comprehensive, fully French-language dashboard spanning school profiles, pedagogical and administrative management, infrastructure, teacher performance, student outcomes, and governance, with a standardized performance-rating model and multi-level filtering by school, identifier, and year.</p>
+                <p class="text-sm text-gray-700 leading-relaxed"><span class="project-label">Relevance.</span> A central body monitoring many decentralized units, in a lower-resource francophone setting, with comparative benchmarking and a full-French interface, a close structural match to a federation Secretariat monitoring its Affiliates.</p>
+            </div>
+
+            <div class="project-item mb-5">
+                <h4 class="font-bold text-gray-900 text-[15px]">Multi-Speciality Health Provider - Healthcare Service-Delivery Analytics</h4>
+                <div class="text-sm text-blue-800 italic font-medium mb-2">Power BI Lead Developer | Full lifecycle</div>
+                <p class="text-sm text-gray-700 leading-relaxed mb-1"><span class="project-label">Context.</span> A healthcare provider needed an integrated view of nursing and patient-care performance across clinical, operational, and management functions.</p>
+                <p class="text-sm text-gray-700 leading-relaxed mb-1"><span class="project-label">Role &amp; delivery.</span> Delivered an end-to-end nursing and patient-care analytics solution covering patient outcomes (readmission, mortality, infection, satisfaction), quality and safety indicators, staffing and nurse-to-patient ratios, financial metrics, and workforce wellbeing, structured into role-specific views for clinical, operational, and management users. Gathered requirements from clinical and operational stakeholders and supported adoption.</p>
+                <p class="text-sm text-gray-700 leading-relaxed"><span class="project-label">Relevance.</span> Direct experience with service-delivery indicators and the operational realities of a health-service-providing organization, the closest analogue to a sexual and reproductive health service-delivery context.</p>
+            </div>
+
+            <div class="project-item mb-5">
+                <h4 class="font-bold text-gray-900 text-[15px]">Pharmaceutical Organization - Multi-Domain Enterprise Analytics Platform</h4>
+                <div class="text-sm text-blue-800 italic font-medium mb-2">Power BI Lead | Enterprise scale</div>
+                <p class="text-sm text-gray-700 leading-relaxed mb-1"><span class="project-label">Context.</span> A pharmaceutical organization needed a single, coherent analytics environment spanning the entire value chain rather than disconnected function-level reports.</p>
+                <p class="text-sm text-gray-700 leading-relaxed mb-1"><span class="project-label">Role &amp; delivery.</span> Led design and delivery of an enterprise platform spanning six functional domains: R&amp;D, manufacturing and supply chain, quality assurance and control, sales and marketing, financial performance, and compliance and regulatory analytics, integrating operational, financial, quality, and regulatory data into one information architecture.</p>
+                <p class="text-sm text-gray-700 leading-relaxed"><span class="project-label">Relevance.</span> Demonstrates the ability to structure a large, complex information architecture across many domains, as a federation dashboard must span service delivery, finance, grants, and governance.</p>
+            </div>
+
+            <div class="project-item mb-5">
+                <h4 class="font-bold text-gray-900 text-[15px]">Janssen (Johnson &amp; Johnson) - Commercial Analytics</h4>
+                <div class="text-sm text-blue-800 italic font-medium mb-2">Middle East (Lebanon) | Commercial Analytics Consultant</div>
+                <p class="text-sm text-gray-700 leading-relaxed mb-1"><span class="project-label">Role &amp; delivery.</span> Built a pharmaceutical sales-intelligence platform with brand performance, price-volume-mix, and promotion-effectiveness analytics, integrating IQVIA market data.</p>
+                <p class="text-sm text-gray-700 leading-relaxed"><span class="project-label">Relevance.</span> Multi-country commercial analytics with external market-data integration and stakeholder-facing dashboards, improving regional sales insights by 20%.</p>
+            </div>
+        </section>
+
+        <section>
+            <h3 class="section-title">Professional Experience</h3>
+
+            <div class="experience-item mb-5">
+                <div class="flex justify-between items-baseline mb-0.5 gap-4">
+                    <h4 class="font-bold text-gray-900 text-[15px]">Business Intelligence Consultant - Woodpecker</h4>
+                    <span class="text-sm font-semibold text-gray-700 whitespace-nowrap">Sep 2025 - Present</span>
+                </div>
+                <div class="text-sm text-gray-600 italic mb-2">Remote (Europe &amp; Middle East clients)</div>
+                <ul class="list-none text-sm text-gray-700 space-y-1.5 ml-1">
+                    <li class="relative pl-4 before:content-['•'] before:absolute before:left-0 before:text-blue-600 before:font-bold">Lead delivery of revenue and analytics dashboards for senior leadership, improving reporting accuracy by 30% and reducing report load times by 50%.</li>
+                </ul>
+            </div>
+
+            <div class="experience-item mb-5">
+                <div class="flex justify-between items-baseline mb-0.5 gap-4">
+                    <h4 class="font-bold text-gray-900 text-[15px]">Power BI Developer / BI Analyst - DataToBiz</h4>
+                    <span class="text-sm font-semibold text-gray-700 whitespace-nowrap">Jul 2022 - Sep 2025</span>
+                </div>
+                <div class="text-sm text-gray-600 italic mb-2">Remote (India, UK & Middle East clients)</div>
+                <ul class="list-none text-sm text-gray-700 space-y-1.5 ml-1">
+                    <li class="relative pl-4 before:content-['•'] before:absolute before:left-0 before:text-blue-600 before:font-bold">Delivered end-to-end BI solutions for global clients across public sector, healthcare, pharma, FMCG, and finance, owning requirements, build, training, and deployment across 15+ business units.</li>
+                    <li class="relative pl-4 before:content-['•'] before:absolute before:left-0 before:text-blue-600 before:font-bold">Collaborated with stakeholders across the US, UK, Europe, Africa, and the Middle East, delivering on time across time zones.</li>
+                </ul>
+            </div>
+
+            <div class="experience-item">
+                <div class="flex justify-between items-baseline mb-0.5 gap-4">
+                    <h4 class="font-bold text-gray-900 text-[15px]">Data Analyst Intern - Yavda</h4>
+                    <span class="text-sm font-semibold text-gray-700 whitespace-nowrap">Feb 2022 - Mar 2022</span>
+                </div>
+                <div class="text-sm text-gray-600 italic mb-2">Remote</div>
+                <ul class="list-none text-sm text-gray-700 space-y-1.5 ml-1">
+                    <li class="relative pl-4 before:content-['•'] before:absolute before:left-0 before:text-blue-600 before:font-bold">Conducted operational data analysis improving cost efficiency by 15% and reducing reporting discrepancies by 30%.</li>
+                </ul>
+            </div>
+        </section>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-2">
+            <section>
+                <h3 class="section-title">Certifications</h3>
+                <ul class="list-none text-sm text-gray-700 space-y-1.5">
+                    <li class="relative pl-3 before:content-['•'] before:absolute before:left-0 before:text-gray-400">IBM Data Analyst Professional Certificate</li>
+                    <li class="relative pl-3 before:content-['•'] before:absolute before:left-0 before:text-gray-400">Microsoft Power BI Advanced Analytics &amp; DAX</li>
+                    <li class="relative pl-3 before:content-['•'] before:absolute before:left-0 before:text-gray-400">Data Analytics &amp; Business Intelligence Specialization</li>
+                    <li class="relative pl-3 before:content-['•'] before:absolute before:left-0 before:text-gray-400">SQL for Data Analytics | Python for Data Analysis</li>
+                </ul>
+            </section>
+
+            <section>
+                <h3 class="section-title">Education</h3>
+                <div>
+                    <h4 class="font-bold text-gray-900 text-sm">Bachelor of Computer Applications</h4>
+                    <div class="text-sm font-medium text-blue-800">Guru Gobind Singh Indraprastha University</div>
+                    <div class="text-sm text-gray-600 mb-1 italic">Jul 2020 - Jun 2023</div>
+                    <div class="text-sm text-gray-700 mt-1"><span class="font-semibold text-gray-900">GPA:</span> 8.63 / 10</div>
+                </div>
+            </section>
+        </div>
+    </div>
+</body>
+</html>

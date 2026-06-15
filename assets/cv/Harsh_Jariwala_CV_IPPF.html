@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harsh Jariwala - IPPF Resume</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+        .resume-container {
+            max-width: 210mm;
+            margin: 2rem auto;
+            background: white;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            padding: 50px 60px;
+        }
+        .section-title {
+            border-bottom: 2px solid #1e3a8a;
+            color: #1e3a8a;
+            padding-bottom: 0.25rem;
+            margin-bottom: 1rem;
+            margin-top: 1.5rem;
+            font-weight: 700;
+            font-size: 1.125rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .experience-item, .project-item {
+            page-break-inside: avoid;
+        }
+        .skill-row {
+            display: grid;
+            grid-template-columns: 125px 1fr;
+            gap: 12px;
+            margin-bottom: 0.45rem;
+        }
+        .project-label {
+            font-weight: 700;
+            color: #111827;
+        }
+        @media print {
+            body { background-color: white; margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .resume-container { box-shadow: none; margin: 0; padding: 10px 20px; max-width: 100%; }
+            .no-print { display: none !important; }
+            .section-title { color: #1e3a8a !important; border-bottom-color: #1e3a8a !important; }
+            h3, h4 { page-break-after: avoid; }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- <div class="fixed top-6 right-6 no-print z-50">
+        <button onclick="window.print()" class="bg-blue-700 hover:bg-blue-800 text-white font-semibold py-2 px-4 rounded-lg shadow-lg flex items-center gap-2 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+            Print to PDF
+        </button>
+    </div> -->
+
+    <div class="resume-container">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-900 tracking-tight uppercase">Harsh Jariwala</h1>
+            <h2 class="text-lg text-blue-800 font-semibold mt-2 uppercase tracking-wide">Senior Power BI Developer | Dashboards, Paginated Reporting &amp; Data Modeling</h2>
+            <div class="flex flex-wrap justify-center items-center gap-x-5 gap-y-2 mt-4 text-sm text-gray-600 font-medium">
+                <span class="flex items-center gap-1.5">
+                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                    +91 81414 84832
+                </span>
+                <span class="flex items-center gap-1.5">
+                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                    <a href="mailto:harsh.jariwala@gmail.com" class="hover:text-blue-700 transition">harsh.jariwala@gmail.com</a>
+                </span>
+                <span class="flex items-center gap-1.5">
+                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Microsoft Certified
+                </span>
+            </div>
+        </header>
+
+        <section>
+            <h3 class="section-title mt-0">Profile</h3>
+            <p class="text-sm leading-relaxed text-gray-700 text-justify">
+                Senior Power BI Developer with 7+ years delivering business intelligence and reporting solutions across healthcare, pharmaceutical, manufacturing, retail, and mining sectors for international clients in the US, UK, Australia, the Middle East, and globally. Strong across the full reporting lifecycle: requirements gathering, data modeling, dashboard and paginated-report development, deployment, and end-user training. Specialist in Power BI (Desktop, Service, Embedded, Paginated Reports), advanced DAX, row-level security, and secure per-entity reporting, complemented by SSRS, SSIS, T-SQL, Power Apps, and Power Automate.
+            </p>
+        </section>
+
+        <section>
+            <h3 class="section-title">Relevance to this Assignment</h3>
+            <ul class="list-none text-sm text-gray-700 space-y-1.5 ml-1">
+                <li class="relative pl-4 before:content-['•'] before:absolute before:left-0 before:text-blue-600 before:font-bold"><strong class="text-gray-900">Secure per-entity reporting:</strong> built and optimized a supplier scorecard enabling each supplier to securely view and export only their own data, conceptually identical to each Affiliate seeing its own segmented view within a shared platform.</li>
+                <li class="relative pl-4 before:content-['•'] before:absolute before:left-0 before:text-blue-600 before:font-bold"><strong class="text-gray-900">Healthcare and pharma data experience:</strong> delivered analytics for long-term care, including admissions, discharges, and occupancy, and pharmaceutical drug analytics, directly relevant flavour for a health-services federation.</li>
+                <li class="relative pl-4 before:content-['•'] before:absolute before:left-0 before:text-blue-600 before:font-bold"><strong class="text-gray-900">Full lifecycle including training:</strong> delivered requirements gathering, build, deployment, and end-user training on prior engagements, supporting the rollout and adoption phase.</li>
+                <li class="relative pl-4 before:content-['•'] before:absolute before:left-0 before:text-blue-600 before:font-bold"><strong class="text-gray-900">Power BI reporting depth:</strong> dashboards, paginated reports, embedding, and row-level security, the core build skills for an Affiliate-facing dashboard platform.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h3 class="section-title">Core Skills</h3>
+            <div class="text-sm text-gray-700 leading-relaxed">
+                <div class="skill-row"><div class="font-bold text-gray-900">BI &amp; Reporting</div><div>Power BI (Desktop, Service, Embedded, Paginated Reports), Advanced DAX, Power Query (M), Data Modeling, Row-Level Security, SSRS</div></div>
+                <div class="skill-row"><div class="font-bold text-gray-900">Data &amp; ETL</div><div>T-SQL, MS SQL Server, SSIS, Data Warehousing, ETL Pipeline Development</div></div>
+                <div class="skill-row"><div class="font-bold text-gray-900">Apps &amp; Automation</div><div>Power Apps, Power Automate, Workflow Automation</div></div>
+                <div class="skill-row"><div class="font-bold text-gray-900">Platforms</div><div>Azure Data Services, Power BI Service, Git</div></div>
+                <div class="skill-row"><div class="font-bold text-gray-900">Delivery</div><div>Requirements Gathering, Report Development, Testing &amp; Validation, Deployment, End-User Training</div></div>
+            </div>
+        </section>
+
+        <section>
+            <h3 class="section-title">Relevant Project Experience</h3>
+
+            <div class="project-item mb-5">
+                <h4 class="font-bold text-gray-900 text-[15px]">Daily Census | Healthcare / Long-Term Care Analytics</h4>
+                <div class="text-sm text-blue-800 italic font-medium mb-2">US | Power BI Developer</div>
+                <p class="text-sm text-gray-700 leading-relaxed mb-1"><span class="project-label">Role &amp; delivery.</span> Built healthcare reporting tracking admissions, discharges, and occupancy for a long-term care insurance context, consolidating operational data into clear management dashboards.</p>
+                <p class="text-sm text-gray-700 leading-relaxed"><span class="project-label">Relevance.</span> Direct healthcare service-delivery data experience, relevant to a health-services federation's operational indicators.</p>
+            </div>
+
+            <div class="project-item mb-5">
+                <h4 class="font-bold text-gray-900 text-[15px]">Pregistry | Pharmaceutical Drug Analytics</h4>
+                <div class="text-sm text-blue-800 italic font-medium mb-2">Power BI Developer</div>
+                <p class="text-sm text-gray-700 leading-relaxed mb-1"><span class="project-label">Role &amp; delivery.</span> Developed dashboards for sales performance, market share, prescription trends, and competitor activity, with regulatory-compliance monitoring.</p>
+                <p class="text-sm text-gray-700 leading-relaxed"><span class="project-label">Relevance.</span> Demonstrates analytics in a regulated health-adjacent domain with compliance-sensitive reporting.</p>
+            </div>
+
+            <div class="project-item mb-5">
+                <h4 class="font-bold text-gray-900 text-[15px]">Coal Mining Operations Reporting | Productivity Development Solutions (PDS)</h4>
+                <div class="text-sm text-blue-800 italic font-medium mb-2">Australia | Power BI / SSRS Developer | Full lifecycle</div>
+                <p class="text-sm text-gray-700 leading-relaxed mb-1"><span class="project-label">Role &amp; delivery.</span> Developed SSRS/SQL Server reporting on equipment health, production tracking, site performance, safety compliance, and operational efficiency. Delivery included requirements-gathering sessions with stakeholders, report development, testing and validation, deployment, and end-user training.</p>
+                <p class="text-sm text-gray-700 leading-relaxed"><span class="project-label">Relevance.</span> A genuine full-lifecycle engagement including stakeholder consultation and end-user training, supporting the rollout-and-adoption phase this assignment emphasizes.</p>
+            </div>
+
+            <div class="project-item mb-5">
+                <h4 class="font-bold text-gray-900 text-[15px]">Supplier Scorecard &amp; Quality Analytics | Tetra Pak</h4>
+                <div class="text-sm text-blue-800 italic font-medium mb-2">Global Food Processing &amp; Packaging | Power BI Developer</div>
+                <p class="text-sm text-gray-700 leading-relaxed mb-1"><span class="project-label">Role &amp; delivery.</span> Enhanced and optimized a Supplier Scorecard Power BI paginated report embedded within Power BI, enabling suppliers to securely view and export their own scorecards in PDF and Excel, a per-entity, securely segmented reporting pattern. Built supplier quality and performance dashboards covering claims, delivered volume, technical-issue recurrence, and cost of poor quality, consolidating KPIs into a single decision layer.</p>
+                <p class="text-sm text-gray-700 leading-relaxed"><span class="project-label">Relevance.</span> The secure per-entity export pattern is conceptually identical to an Affiliate-facing model where each entity sees and exports only its own data.</p>
+            </div>
+
+            <div class="project-item">
+                <h4 class="font-bold text-gray-900 text-[15px]">Further Engagements</h4>
+                <div class="text-sm text-blue-800 italic font-medium mb-2">Commercial, Retail &amp; Connectivity</div>
+                <ul class="list-none text-sm text-gray-700 space-y-1.5 ml-1">
+                    <li class="relative pl-4 before:content-['•'] before:absolute before:left-0 before:text-blue-600 before:font-bold">Executive revenue dashboards covering bookings, pipeline, and billings for revenue leadership.</li>
+                    <li class="relative pl-4 before:content-['•'] before:absolute before:left-0 before:text-blue-600 before:font-bold">Sales, inventory, and marketing-ROI dashboards for Kellogg Garden Organics.</li>
+                    <li class="relative pl-4 before:content-['•'] before:absolute before:left-0 before:text-blue-600 before:font-bold">Trading data-warehouse, automation, and cost-allocation solutions for Advaita, Dubai.</li>
+                    <li class="relative pl-4 before:content-['•'] before:absolute before:left-0 before:text-blue-600 before:font-bold">Shipment and project-tracking solutions for US clients using Power BI, Power Apps, and Power Automate.</li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <h3 class="section-title">Tools &amp; Technologies</h3>
+            <ul class="list-none text-sm text-gray-700 space-y-1.5 ml-1">
+                <li class="relative pl-4 before:content-['•'] before:absolute before:left-0 before:text-blue-600 before:font-bold">Power BI (Reports, Dashboards, Service, Embedded, Paginated Reports), SSRS, SSIS, T-SQL, Power Automate, Power Apps, Azure, Git</li>
+            </ul>
+        </section>
+
+    </div>
+</body>
+</html>

@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nursing Services Analytics | Power BI Dashboard</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        healthcare: {
+                            teal: '#0d9488',      // Main Teal
+                            lightTeal: '#14b8a6', // Accent Teal
+                            mint: '#ccfbf1',      // Background Mint
+                            navy: '#0f172a',      // Dark Text
+                            slate: '#64748b'      // Secondary Text
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@300;400;600;700&display=swap');
+        body { font-family: 'Segoe UI', system-ui, sans-serif; }
+        
+        /* Power BI style smooth tab transitions */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Power BI style cards */
+        .pbi-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            transition: box-shadow 0.2s ease;
+        }
+        .pbi-card:hover {
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        
+        /* Scrollbar styling */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="h-full text-slate-800 flex overflow-hidden">
+
+    <!-- SIDEBAR (Teal Theme matching PDF) -->
+    <aside class="w-64 bg-[#0d9488] text-white flex flex-col shadow-xl z-20 flex-shrink-0">
+        <!-- Logo Area -->
+        <div class="h-16 flex items-center px-6 border-b border-teal-700 bg-[#0f766e]">
+            <i data-lucide="activity" class="w-6 h-6 mr-2 text-teal-200"></i>
+            <div>
+                <h1 class="text-lg font-bold tracking-wide leading-tight">CarePlus+</h1>
+                <p class="text-[10px] text-teal-200 uppercase tracking-widest font-semibold">Nursing Services</p>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="flex-1 overflow-y-auto py-6 px-3 space-y-1">
+            <button data-target="overview" class="nav-btn active w-full flex items-center space-x-3 px-4 py-3 rounded-md bg-white text-[#0d9488] font-semibold transition-colors">
+                <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                <span>Overview</span>
+            </button>
+            <button data-target="patient-care" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-md text-teal-50 hover:bg-teal-700 transition-colors">
+                <i data-lucide="heart-pulse" class="w-5 h-5"></i>
+                <span>Patient Care</span>
+            </button>
+            <button data-target="quality" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-md text-teal-50 hover:bg-teal-700 transition-colors">
+                <i data-lucide="shield-check" class="w-5 h-5"></i>
+                <span>Quality & Safety</span>
+            </button>
+            <button data-target="staffing" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-md text-teal-50 hover:bg-teal-700 transition-colors">
+                <i data-lucide="users" class="w-5 h-5"></i>
+                <span>Staffing & HR</span>
+            </button>
+            <button data-target="finance" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-md text-teal-50 hover:bg-teal-700 transition-colors">
+                <i data-lucide="circle-dollar-sign" class="w-5 h-5"></i>
+                <span>Financial Metrics</span>
+            </button>
+        </nav>
+
+        <!-- User Profile -->
+        <div class="p-4 border-t border-teal-700 bg-[#0f766e]">
+            <div class="flex items-center space-x-3">
+                <img src="https://ui-avatars.com/api/?name=Mihir+Soni&background=ccfbf1&color=0d9488" alt="User" class="w-9 h-9 rounded-full border-2 border-teal-500">
+                <div>
+                    <p class="text-sm font-bold text-white">Mihir Soni</p>
+                    <p class="text-xs text-teal-200">Administrator</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="flex-1 flex flex-col h-full relative">
+        
+        <!-- TOP FILTER BAR (Power BI Style) -->
+        <header class="h-16 bg-white border-b border-slate-200 shadow-sm flex items-center justify-between px-6 z-10 flex-shrink-0">
+            <h2 id="page-title" class="text-xl font-bold text-slate-800">Overview Dashboard</h2>
+            
+            <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-2 bg-slate-50 border border-slate-300 rounded px-3 py-1.5 hover:border-teal-500 transition-colors">
+                    <span class="text-xs font-semibold text-slate-500 uppercase">Year:</span>
+                    <select class="bg-transparent text-sm font-bold text-slate-700 outline-none cursor-pointer">
+                        <option>2024</option>
+                        <option>2023</option>
+                    </select>
+                </div>
+                <div class="flex items-center space-x-2 bg-slate-50 border border-slate-300 rounded px-3 py-1.5 hover:border-teal-500 transition-colors">
+                    <span class="text-xs font-semibold text-slate-500 uppercase">Department:</span>
+                    <select class="bg-transparent text-sm font-bold text-slate-700 outline-none cursor-pointer">
+                        <option>All</option>
+                        <option>General Medicine</option>
+                        <option>ICU</option>
+                        <option>Pediatrics</option>
+                        <option>Emergency</option>
+                        <option>Surgery</option>
+                    </select>
+                </div>
+                <div class="flex items-center space-x-2 bg-slate-50 border border-slate-300 rounded px-3 py-1.5 hover:border-teal-500 transition-colors">
+                    <span class="text-xs font-semibold text-slate-500 uppercase">Shift:</span>
+                    <select class="bg-transparent text-sm font-bold text-slate-700 outline-none cursor-pointer">
+                        <option>All</option>
+                        <option>Morning (8AM-4PM)</option>
+                        <option>Evening (4PM-12AM)</option>
+                        <option>Night (12AM-8AM)</option>
+                    </select>
+                </div>
+                
+                <div class="w-px h-6 bg-slate-300 mx-1"></div>
+                
+                <button class="text-slate-400 hover:text-teal-600 transition-colors p-1">
+                    <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- DASHBOARD PAGES -->
+        <main class="flex-1 overflow-y-auto p-6 bg-[#f0f4f8]">
+            <div class="max-w-7xl mx-auto">
+
+                <!-- 1. OVERVIEW TAB -->
+                <div id="overview" class="tab-content active space-y-6">
+                    
+                    <!-- Top KPI Row -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div class="pbi-card p-5 border-l-4 border-l-teal-500 flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-bold text-slate-500 uppercase tracking-wide">Total Nurses</p>
+                                <h3 class="text-3xl font-bold text-slate-800 mt-1">511</h3>
+                            </div>
+                            <div class="w-10 h-10 rounded-full bg-teal-50 flex items-center justify-center text-teal-600">
+                                <i data-lucide="user-nurse" class="w-5 h-5"></i>
+                            </div>
+                        </div>
+                        <div class="pbi-card p-5 border-l-4 border-l-blue-500 flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-bold text-slate-500 uppercase tracking-wide">Total Patients</p>
+                                <h3 class="text-3xl font-bold text-slate-800 mt-1">640</h3>
+                            </div>
+                            <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
+                                <i data-lucide="users" class="w-5 h-5"></i>
+                            </div>
+                        </div>
+                        <div class="pbi-card p-5 border-l-4 border-l-emerald-500 flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-bold text-slate-500 uppercase tracking-wide">Nurse to Patient Ratio</p>
+                                <h3 class="text-3xl font-bold text-slate-800 mt-1">1 : 1.25</h3>
+                            </div>
+                            <div class="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600">
+                                <i data-lucide="percent" class="w-5 h-5"></i>
+                            </div>
+                        </div>
+                        <div class="pbi-card p-5 border-l-4 border-l-amber-500 flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-bold text-slate-500 uppercase tracking-wide">Average OT Hrs</p>
+                                <h3 class="text-3xl font-bold text-slate-800 mt-1">6 hrs</h3>
+                            </div>
+                            <div class="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center text-amber-600">
+                                <i data-lucide="clock" class="w-5 h-5"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Row 1 -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="pbi-card p-5">
+                            <h4 class="text-sm font-bold text-slate-700 mb-4 flex items-center">
+                                Nurse To Patient Ratio By Department
+                                <i data-lucide="info" class="w-4 h-4 ml-2 text-slate-400"></i>
+                            </h4>
+                            <div class="h-64 w-full">
+                                <canvas id="ratioDeptChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="pbi-card p-5">
+                            <h4 class="text-sm font-bold text-slate-700 mb-4 flex items-center">
+                                Trend Of Ratio By Month-Year (2024)
+                                <i data-lucide="info" class="w-4 h-4 ml-2 text-slate-400"></i>
+                            </h4>
+                            <div class="h-64 w-full">
+                                <canvas id="ratioTrendChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Overtime Table Section -->
+                    <div class="pbi-card overflow-hidden">
+                        <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                            <h4 class="text-sm font-bold text-slate-700">Nurse Overtime Hours Log</h4>
+                            <button class="text-xs font-bold text-teal-600 hover:text-teal-800">Export <i data-lucide="download" class="w-3 h-3 inline"></i></button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm text-slate-600">
+                                <thead class="bg-[#e2e8f0] text-slate-700">
+                                    <tr>
+                                        <th class="px-4 py-3 font-bold border-r border-white">NurseID</th>
+                                        <th class="px-4 py-3 font-bold">Jan</th>
+                                        <th class="px-4 py-3 font-bold">Feb</th>
+                                        <th class="px-4 py-3 font-bold">Mar</th>
+                                        <th class="px-4 py-3 font-bold">Apr</th>
+                                        <th class="px-4 py-3 font-bold">May</th>
+                                        <th class="px-4 py-3 font-bold border-l border-white">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">
+                                    <tr class="hover:bg-slate-50">
+                                        <td class="px-4 py-2 font-semibold">1001</td>
+                                        <td class="px-4 py-2">-</td>
+                                        <td class="px-4 py-2">-</td>
+                                        <td class="px-4 py-2">-</td>
+                                        <td class="px-4 py-2">-</td>
+                                        <td class="px-4 py-2"><span class="bg-red-100 text-red-700 px-2 py-0.5 rounded text-xs font-bold">4 hrs</span></td>
+                                        <td class="px-4 py-2 font-bold text-teal-700 bg-teal-50">4 hrs</td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50">
+                                        <td class="px-4 py-2 font-semibold">1002</td>
+                                        <td class="px-4 py-2">-</td>
+                                        <td class="px-4 py-2"><span class="bg-red-500 text-white px-2 py-0.5 rounded text-xs font-bold">9 hrs</span></td>
+                                        <td class="px-4 py-2">-</td>
+                                        <td class="px-4 py-2">-</td>
+                                        <td class="px-4 py-2">-</td>
+                                        <td class="px-4 py-2 font-bold text-teal-700 bg-teal-50">9 hrs</td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50">
+                                        <td class="px-4 py-2 font-semibold">1010</td>
+                                        <td class="px-4 py-2">-</td>
+                                        <td class="px-4 py-2">-</td>
+                                        <td class="px-4 py-2"><span class="bg-red-400 text-white px-2 py-0.5 rounded text-xs font-bold">3 hrs</span></td>
+                                        <td class="px-4 py-2">-</td>
+                                        <td class="px-4 py-2"><span class="bg-red-500 text-white px-2 py-0.5 rounded text-xs font-bold">7 hrs</span></td>
+                                        <td class="px-4 py-2 font-bold text-teal-700 bg-teal-50">10 hrs</td>
+                                    </tr>
+                                </tbody>
+                                <tfoot class="bg-[#ccfbf1] text-teal-900 font-bold border-t-2 border-teal-200">
+                                    <tr>
+                                        <td class="px-4 py-3">Average</td>
+                                        <td class="px-4 py-3">7 hrs</td>
+                                        <td class="px-4 py-3">6 hrs</td>
+                                        <td class="px-4 py-3">7 hrs</td>
+                                        <td class="px-4 py-3">7 hrs</td>
+                                        <td class="px-4 py-3">6 hrs</td>
+                                        <td class="px-4 py-3">6 hrs</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. PATIENT CARE TAB -->
+                <div id="patient-care" class="tab-content space-y-6">
+                    <!-- KPI Row -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div class="pbi-card p-5 border-t-4 border-t-teal-500">
+                            <p class="text-xs font-bold text-slate-500 uppercase">Patient Satisfaction</p>
+                            <h3 class="text-3xl font-bold text-slate-800 mt-1">5.43 <span class="text-sm text-slate-400 font-normal">/ 10</span></h3>
+                        </div>
+                        <div class="pbi-card p-5 border-t-4 border-t-blue-500">
+                            <p class="text-xs font-bold text-slate-500 uppercase">Readmission Rate</p>
+                            <h3 class="text-3xl font-bold text-slate-800 mt-1">43.46%</h3>
+                        </div>
+                        <div class="pbi-card p-5 border-t-4 border-t-emerald-500">
+                            <p class="text-xs font-bold text-slate-500 uppercase">Avg Length of Stay</p>
+                            <h3 class="text-3xl font-bold text-slate-800 mt-1">7 Days</h3>
+                        </div>
+                        <div class="pbi-card p-5 border-t-4 border-t-rose-500">
+                            <p class="text-xs font-bold text-slate-500 uppercase">Infection Rate</p>
+                            <h3 class="text-3xl font-bold text-slate-800 mt-1">59.33%</h3>
+                        </div>
+                    </div>
+
+                    <!-- Charts Row -->
+                    <div class="pbi-card p-5">
+                        <h4 class="text-sm font-bold text-slate-700 mb-4">Readmission Rate By Month</h4>
+                        <div class="h-72 w-full">
+                            <canvas id="readmissionChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="pbi-card p-5">
+                            <h4 class="text-sm font-bold text-slate-700 mb-4">Infection Rate By Year</h4>
+                            <div class="h-64 w-full">
+                                <canvas id="infectionChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="pbi-card p-5">
+                            <h4 class="text-sm font-bold text-slate-700 mb-4">Satisfaction Score By Year</h4>
+                            <div class="h-64 w-full flex items-center justify-center relative">
+                                <!-- Doughnut Chart -->
+                                <canvas id="satisfactionYearChart"></canvas>
+                                <div class="absolute inset-0 flex items-center justify-center flex-col pointer-events-none pt-4">
+                                    <span class="text-2xl font-bold text-slate-800">5.55</span>
+                                    <span class="text-xs text-slate-500">2024 Avg</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. QUALITY & SAFETY TAB -->
+                <div id="quality" class="tab-content space-y-6">
+                    <div class="pbi-card p-8 text-center border-t-4 border-teal-500">
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-teal-100 text-teal-600 mb-4">
+                            <i data-lucide="shield-check" class="w-8 h-8"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-slate-800">Quality & Safety Controls</h3>
+                        <p class="text-slate-500 mt-2">Compliance Rate: <strong class="text-teal-600">69.99%</strong> | Overall Safety Score: <strong class="text-teal-600">74</strong></p>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="pbi-card p-5">
+                            <h4 class="text-sm font-bold text-slate-700 mb-4">Hand Hygiene Compliance By Dept</h4>
+                            <div class="h-64 w-full">
+                                <canvas id="hygieneChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="pbi-card p-5">
+                            <h4 class="text-sm font-bold text-slate-700 mb-4">Patient Safety Indicator Scores By Month</h4>
+                            <div class="h-64 w-full">
+                                <canvas id="safetyScoreChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PLACEHOLDERS for remaining tabs -->
+                <div id="staffing" class="tab-content">
+                    <div class="pbi-card p-12 text-center">
+                        <i data-lucide="users" class="w-12 h-12 text-slate-300 mx-auto mb-4"></i>
+                        <h3 class="text-xl font-bold text-slate-700">Staffing & HR View</h3>
+                        <p class="text-slate-500 mt-2">Turnover Rate: 59.69% | Vacancy Rate: 54.63%</p>
+                    </div>
+                </div>
+                
+                <div id="finance" class="tab-content">
+                    <div class="pbi-card p-12 text-center">
+                        <i data-lucide="circle-dollar-sign" class="w-12 h-12 text-slate-300 mx-auto mb-4"></i>
+                        <h3 class="text-xl font-bold text-slate-700">Financial Metrics View</h3>
+                        <p class="text-slate-500 mt-2">Total Revenue: ₹218.70K | Cost Per Patient Day: ₹649.55</p>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // 1. Initialize Icons
+        lucide.createIcons();
+
+        // 2. Tab Navigation Logic (Power BI Page Simulation)
+        const navButtons = document.querySelectorAll('.nav-btn');
+        const contents = document.querySelectorAll('.tab-content');
+        const pageTitle = document.getElementById('page-title');
+
+        navButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetId = btn.getAttribute('data-target');
+                const titleText = btn.querySelector('span').innerText;
+                
+                // Reset styling for all buttons
+                navButtons.forEach(b => {
+                    b.classList.remove('bg-white', 'text-[#0d9488]');
+                    b.classList.add('text-teal-50', 'hover:bg-teal-700');
+                });
+
+                // Set Active styling
+                btn.classList.add('bg-white', 'text-[#0d9488]');
+                btn.classList.remove('text-teal-50', 'hover:bg-teal-700');
+                
+                // Update Title
+                pageTitle.innerText = titleText + " Dashboard";
+
+                // Switch Content
+                contents.forEach(c => c.classList.remove('active'));
+                document.getElementById(targetId).classList.add('active');
+            });
+        });
+
+        // 3. Chart.js Configurations (Matching the PDF aesthetics)
+        Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
+        Chart.defaults.color = '#64748b'; // Slate 500
+        Chart.defaults.scale.grid.color = '#f1f5f9'; // Very light gray grid
+
+        const pbiColors = {
+            tealDark: '#0d9488',
+            tealLight: '#14b8a6',
+            gray: '#94a3b8',
+            emerald: '#10b981',
+            mint: '#99f6e4'
+        };
+
+        // CHART 1: Overview -> Ratio by Dept (Horizontal Bar)
+        const ctxRatioDept = document.getElementById('ratioDeptChart').getContext('2d');
+        new Chart(ctxRatioDept, {
+            type: 'bar',
+            data: {
+                labels: ['Gen Med', 'ICU', 'Pediatrics', 'Emergency', 'Surgery'],
+                datasets: [
+                    {
+                        label: 'Nurses',
+                        data: [358, 90, 87, 62, 14],
+                        backgroundColor: pbiColors.tealDark,
+                        barPercentage: 0.8,
+                        categoryPercentage: 0.9
+                    },
+                    {
+                        label: 'Patient',
+                        data: [416, 95, 94, 63, 14],
+                        backgroundColor: pbiColors.gray,
+                        barPercentage: 0.8,
+                        categoryPercentage: 0.9
+                    }
+                ]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top', align: 'start', labels: { usePointStyle: true, boxWidth: 8 } },
+                    tooltip: { backgroundColor: '#1e293b', padding: 12, cornerRadius: 4 }
+                },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: { grid: { display: false }, ticks: { font: { weight: '600' } } }
+                }
+            }
+        });
+
+        // CHART 2: Overview -> Trend of Ratio (Line Chart)
+        const ctxRatioTrend = document.getElementById('ratioTrendChart').getContext('2d');
+        new Chart(ctxRatioTrend, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+                datasets: [{
+                    label: 'Ratio %',
+                    data: [93.80, 100.00, 94.92, 98.50, 95.28, 96.05, 80.00],
+                    borderColor: pbiColors.tealLight,
+                    backgroundColor: pbiColors.tealLight,
+                    borderWidth: 2,
+                    tension: 0, // Sharp lines like in Power BI
+                    pointRadius: 4,
+                    pointBackgroundColor: pbiColors.tealLight
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { min: 80, max: 100, ticks: { callback: v => v + '%' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // CHART 3: Patient Care -> Readmission Rate (Line Chart)
+        const ctxReadmission = document.getElementById('readmissionChart').getContext('2d');
+        new Chart(ctxReadmission, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'Readmission Rate',
+                    data: [45.16, 35.65, 48.62, 44.95, 44.58, 45.45, 40.43, 42.39, 46.38, 38.75, 49.28, 41.56],
+                    borderColor: pbiColors.tealLight,
+                    borderWidth: 2,
+                    tension: 0,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: pbiColors.tealLight,
+                    pointBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { min: 0, max: 50, ticks: { callback: v => v + '%' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // CHART 4: Patient Care -> Infection Rate (Bar)
+        const ctxInfection = document.getElementById('infectionChart').getContext('2d');
+        new Chart(ctxInfection, {
+            type: 'bar',
+            data: {
+                labels: ['2022', '2023', '2024'],
+                datasets: [{
+                    data: [60.88, 58.15, 58.18],
+                    backgroundColor: pbiColors.tealLight,
+                    barPercentage: 0.6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { min: 0, max: 80, ticks: { callback: v => v + '%' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // CHART 5: Patient Care -> Satisfaction (Doughnut)
+        const ctxSatYear = document.getElementById('satisfactionYearChart').getContext('2d');
+        new Chart(ctxSatYear, {
+            type: 'doughnut',
+            data: {
+                labels: ['2022', '2023', '2024'],
+                datasets: [{
+                    data: [5.18, 5.55, 5.40],
+                    backgroundColor: [pbiColors.mint, pbiColors.gray, pbiColors.tealDark],
+                    borderWidth: 0,
+                    cutout: '75%'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8 } }
+                }
+            }
+        });
+
+        // CHART 6: Quality -> Hygiene (Bar)
+        const ctxHygiene = document.getElementById('hygieneChart').getContext('2d');
+        new Chart(ctxHygiene, {
+            type: 'bar',
+            data: {
+                labels: ['Surgery', 'Gen Med', 'Emergency', 'ICU', 'Pediatrics'],
+                datasets: [{
+                    data: [71.63, 71.34, 71.09, 71.05, 69.22],
+                    backgroundColor: [pbiColors.tealDark, pbiColors.gray, pbiColors.tealLight, pbiColors.mint, '#38bdf8'],
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { min: 0, max: 100, ticks: { callback: v => v + '%' } }, x: { grid: { display: false } } }
+            }
+        });
+
+        // CHART 7: Quality -> Safety Scores (Bar with target line logic)
+        const ctxSafety = document.getElementById('safetyScoreChart').getContext('2d');
+        new Chart(ctxSafety, {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    type: 'bar',
+                    label: 'Score',
+                    data: [73, 77, 72, 75, 75, 76, 71, 78, 73, 74, 75, 74],
+                    backgroundColor: pbiColors.tealDark,
+                    barPercentage: 0.7
+                }, {
+                    type: 'line',
+                    label: 'Target (74)',
+                    data: [74, 74, 74, 74, 74, 74, 74, 74, 74, 74, 74, 74],
+                    borderColor: '#f43f5e',
+                    borderWidth: 2,
+                    pointRadius: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { min: 0, max: 100 }, x: { grid: { display: false } } }
+            }
+        });
+    </script>
+</body>
+</html>
